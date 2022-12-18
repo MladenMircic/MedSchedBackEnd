@@ -29,4 +29,11 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
+    // KTORM dependency
+    implementation("org.ktorm:ktorm-core:3.5.0")
+    // MySQL connector
+    implementation("com.mysql:mysql-connector-j:8.0.31")
+    // Encryption dependency
+    implementation("org.mindrot:jbcrypt:0.4")
 }
