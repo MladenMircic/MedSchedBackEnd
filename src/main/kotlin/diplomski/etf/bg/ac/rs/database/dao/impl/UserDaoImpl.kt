@@ -1,16 +1,17 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
-import diplomski.etf.bg.ac.rs.database.DatabaseConnection
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
 import diplomski.etf.bg.ac.rs.database.entities.UserEntity
 import diplomski.etf.bg.ac.rs.models.database_models.User
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
+import org.koin.core.component.inject
+import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.mindrot.jbcrypt.BCrypt
 
 class UserDaoImpl: UserDao {
 
-    private val database = DatabaseConnection.database
+    private val database: Database by inject()
 
     override fun getUserByEmail(email: String): User? =
         database

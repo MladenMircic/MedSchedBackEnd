@@ -1,7 +1,6 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
-import diplomski.etf.bg.ac.rs.database.dao.impl.UserDaoImpl
 import diplomski.etf.bg.ac.rs.models.requests.LoginRequest
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
 import diplomski.etf.bg.ac.rs.models.responses.LoginResponse
