@@ -11,7 +11,8 @@ val appModule = module {
             url = "jdbc:mysql://localhost:3306/med_sched_db",
             driver = "com.mysql.cj.jdbc.Driver",
             user = "root",
-            password = "1234"
+            password = "1234",
+            generateSqlInUpperCase = true
         )
     }
     single<UserDao> { UserDaoImpl() }
