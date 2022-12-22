@@ -5,21 +5,23 @@ import diplomski.etf.bg.ac.rs.models.requests.LoginRequest
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
 import diplomski.etf.bg.ac.rs.models.responses.LoginResponse
 import diplomski.etf.bg.ac.rs.models.responses.RegisterResponse
+import diplomski.etf.bg.ac.rs.security.services.HashingService
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
-import org.mindrot.jbcrypt.BCrypt
 
 fun Application.userRouter() {
 
     val userDao: UserDao by inject()
+    val hashingService: HashingService by inject()
 
     routing {
         post("/login") {
-            val loginRequest = call.receive<LoginRequest>()
 
+
+            val loginRequest = call.receive<LoginRequest>()
             val user = userDao.getUserByEmail(loginRequest.email)
 
             if (user == null) {
@@ -31,7 +33,7 @@ fun Application.userRouter() {
             } else {
                 call.respond(
                     LoginResponse(
-                        hasPasswordError = !BCrypt.checkpw(loginRequest.password, user.password)
+                        hasPasswordError = !hashingService.verifyHash(loginRequest.password, user.password)
                     )
                 )
             }
@@ -50,6 +52,7 @@ fun Application.userRouter() {
                 )
             }
             else {
+                registerRequest.password = hashingService.generateHash(registerRequest.password)
                 val result = userDao.insertUser(registerRequest)
                 if (result > 0) {
                     call.respond(

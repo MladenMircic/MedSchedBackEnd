@@ -33,7 +33,7 @@ class UserDaoImpl: UserDao {
     override fun insertUser(registerRequest: RegisterRequest): Int =
         database.insert(UserEntity) {
             set(it.email, registerRequest.email)
-            set(it.password, BCrypt.hashpw(registerRequest.password, BCrypt.gensalt()))
+            set(it.password, registerRequest.password)
             set(it.role, registerRequest.role)
             set(it.phone, registerRequest.phone)
             set(it.ssn, registerRequest.ssn)

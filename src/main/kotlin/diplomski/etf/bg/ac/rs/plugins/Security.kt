@@ -2,25 +2,24 @@ package diplomski.etf.bg.ac.rs.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import diplomski.etf.bg.ac.rs.security.token.TokenConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 
-fun Application.configureSecurity() {
+fun Application.configureSecurity(config: TokenConfig) {
     authentication {
         jwt {
-            val environment = this@configureSecurity.environment
-            val jwtAudience = environment.config.property("jwt.audience").getString()
-            realm = environment.config.property("jwt.realm").getString()
+            realm = this@configureSecurity.environment.config.property("jwt.realm").getString()
             verifier(
                 JWT
                     .require(Algorithm.HMAC256("secret"))
-                    .withAudience(jwtAudience)
-                    .withIssuer(environment.config.property("jwt.domain").getString())
+                    .withAudience(config.audience)
+                    .withIssuer(config.issuer)
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) {
+                if (credential.payload.audience.contains(config.audience)) {
                     JWTPrincipal(credential.payload)
                 } else null
             }
