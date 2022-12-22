@@ -13,7 +13,7 @@ fun Application.configureSecurity(config: TokenConfig) {
             realm = this@configureSecurity.environment.config.property("jwt.realm").getString()
             verifier(
                 JWT
-                    .require(Algorithm.HMAC256("secret"))
+                    .require(Algorithm.HMAC256(config.secret))
                     .withAudience(config.audience)
                     .withIssuer(config.issuer)
                     .build()

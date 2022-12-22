@@ -16,13 +16,13 @@ fun main(args: Array<String>): Unit =
 fun Application.module() {
     configureDependencyInjection()
     configureSerialization()
-    configureRouting()
 
     val tokenConfig = TokenConfig(
         issuer = environment.config.property("jwt.issuer").getString(),
         audience = environment.config.property("jwt.audience").getString(),
-        expiresIn = TimeUnit.SECONDS.toMillis(1),
+        expiresIn = TimeUnit.SECONDS.toMillis(10),
         secret = System.getenv("JWT_SECRET")
     )
     configureSecurity(tokenConfig)
+    configureRouting(tokenConfig)
 }

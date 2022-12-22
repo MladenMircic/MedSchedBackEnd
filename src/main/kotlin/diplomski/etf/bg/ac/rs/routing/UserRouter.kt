@@ -6,20 +6,25 @@ import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
 import diplomski.etf.bg.ac.rs.models.responses.LoginResponse
 import diplomski.etf.bg.ac.rs.models.responses.RegisterResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
+import diplomski.etf.bg.ac.rs.security.services.TokenService
+import diplomski.etf.bg.ac.rs.security.token.TokenClaim
+import diplomski.etf.bg.ac.rs.security.token.TokenConfig
+import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 
-fun Application.userRouter() {
+fun Application.userRouter(config: TokenConfig) {
 
     val userDao: UserDao by inject()
     val hashingService: HashingService by inject()
+    val tokenService: TokenService by inject()
 
     routing {
         post("/login") {
-
 
             val loginRequest = call.receive<LoginRequest>()
             val user = userDao.getUserByEmail(loginRequest.email)
@@ -30,10 +35,26 @@ fun Application.userRouter() {
                         hasEmailError = true
                     )
                 )
-            } else {
+                return@post
+            }
+
+            if (!hashingService.verifyHash(loginRequest.password, user.password)) {
                 call.respond(
                     LoginResponse(
-                        hasPasswordError = !hashingService.verifyHash(loginRequest.password, user.password)
+                        hasPasswordError = true
+                    )
+                )
+            } else {
+                val jwtToken = tokenService.generate(
+                    config = config,
+                    TokenClaim(
+                        name = "email",
+                        value = user.email
+                    )
+                )
+                call.respond(
+                    LoginResponse(
+                        token = jwtToken
                     )
                 )
             }
@@ -67,6 +88,12 @@ fun Application.userRouter() {
                         )
                     )
                 }
+            }
+        }
+
+        authenticate {
+            get("/authenticate") {
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
