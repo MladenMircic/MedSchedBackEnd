@@ -1,4 +1,5 @@
 val ktor_version: String by project
+val koin_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 
@@ -30,10 +31,13 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
-    // KTORM dependency
+    // KTORM
     implementation("org.ktorm:ktorm-core:3.5.0")
     // MySQL connector
     implementation("com.mysql:mysql-connector-j:8.0.31")
-    // Encryption dependency
+    // Password Encryption
     implementation("org.mindrot:jbcrypt:0.4")
+    // KOIN dependency injection
+    implementation("io.insert-koin:koin-ktor:$koin_version")
+    implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
 }

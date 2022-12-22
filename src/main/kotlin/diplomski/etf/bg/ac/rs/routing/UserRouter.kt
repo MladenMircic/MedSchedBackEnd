@@ -1,7 +1,7 @@
 package diplomski.etf.bg.ac.rs.routing
 
-import diplomski.etf.bg.ac.rs.database.DatabaseConnection
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
+import diplomski.etf.bg.ac.rs.database.dao.impl.UserDaoImpl
 import diplomski.etf.bg.ac.rs.models.requests.LoginRequest
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
 import diplomski.etf.bg.ac.rs.models.responses.LoginResponse
@@ -10,14 +10,18 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.koin.ktor.ext.inject
 import org.mindrot.jbcrypt.BCrypt
 
 fun Application.userRouter() {
+
+    val userDao: UserDao by inject()
+
     routing {
         post("/login") {
             val loginRequest = call.receive<LoginRequest>()
 
-            val user = UserDao().getUserByEmail(loginRequest.email)
+            val user = userDao.getUserByEmail(loginRequest.email)
 
             if (user == null) {
                 call.respond(
@@ -37,7 +41,6 @@ fun Application.userRouter() {
         post("/register") {
             val registerRequest = call.receive<RegisterRequest>()
 
-            val userDao = UserDao()
             val user = userDao.getUserByEmail(registerRequest.email)
 
             if (user != null) {
