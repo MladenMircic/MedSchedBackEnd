@@ -1,0 +1,1 @@
+web: build/install/MedSchedBackEnd/bin/MedSchedBackEnd

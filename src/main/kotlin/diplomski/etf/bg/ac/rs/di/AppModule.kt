@@ -13,10 +13,10 @@ import org.ktorm.database.Database
 val appModule = module {
     single {
         Database.connect(
-            url = "jdbc:mysql://localhost:3306/med_sched_db",
+            url = "jdbc:mysql://pfw0ltdr46khxib3.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/wvvnsnesvd9hfhoe",
             driver = "com.mysql.cj.jdbc.Driver",
-            user = "root",
-            password = "1234",
+            user = "teoqgnmyw7zvuabg",
+            password = "mludvkrxz27mur4f",
             generateSqlInUpperCase = true
         )
     }
