@@ -10,6 +10,8 @@ import org.ktorm.schema.varchar
 // 2 (Administrator)
 object UserEntity: Table<Nothing>("user") {
     val email = varchar("email").primaryKey()
+    val first_name = varchar("first_name")
+    val last_name = varchar("last_name")
     val password = varchar("password")
     val role = int("role")
     val phone = varchar("phone")

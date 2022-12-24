@@ -23,6 +23,8 @@ class UserDaoImpl: UserDao {
             .map {
                 User(
                     email = it[UserEntity.email]!!,
+                    firstName = it[UserEntity.first_name]!!,
+                    lastName = it[UserEntity.last_name]!!,
                     password = it[UserEntity.password]!!,
                     role = it[UserEntity.role]!!,
                     phone = it[UserEntity.phone]!!,
@@ -33,6 +35,8 @@ class UserDaoImpl: UserDao {
     override fun insertUser(registerRequest: RegisterRequest): Int =
         database.insert(UserEntity) {
             set(it.email, registerRequest.email)
+            set(it.first_name, registerRequest.firstName)
+            set(it.last_name, registerRequest.lastName)
             set(it.password, registerRequest.password)
             set(it.role, registerRequest.role)
             set(it.phone, registerRequest.phone)
