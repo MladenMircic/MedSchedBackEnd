@@ -44,17 +44,32 @@ fun Application.userRouter(config: TokenConfig) {
                         hasPasswordError = true
                     )
                 )
+                return@post
+            }
+
+            if (loginRequest.role != user.role) {
+                call.respond(
+                    LoginResponse(
+                        hasRoleError = true
+                    )
+                )
+                return@post
             } else {
                 val jwtToken = tokenService.generate(
                     config = config,
                     TokenClaim(
                         name = "email",
                         value = user.email
+                    ),
+                    TokenClaim(
+                        name = "role",
+                        value = user.role.toString()
                     )
                 )
                 call.respond(
                     LoginResponse(
-                        token = jwtToken
+                        token = jwtToken,
+                        user = user.copy(password = "")
                     )
                 )
             }
