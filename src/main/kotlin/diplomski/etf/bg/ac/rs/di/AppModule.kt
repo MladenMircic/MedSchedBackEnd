@@ -1,6 +1,9 @@
 package diplomski.etf.bg.ac.rs.di
 
+import diplomski.etf.bg.ac.rs.database.DatabaseConnection
+import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
+import diplomski.etf.bg.ac.rs.database.dao.impl.PatientDaoImpl
 import diplomski.etf.bg.ac.rs.database.dao.impl.UserDaoImpl
 import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.security.services.TokenService
@@ -11,16 +14,9 @@ import org.koin.dsl.module
 import org.ktorm.database.Database
 
 val appModule = module {
-    single {
-        Database.connect(
-            url = "jdbc:mysql://pfw0ltdr46khxib3.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/wvvnsnesvd9hfhoe",
-            driver = "com.mysql.cj.jdbc.Driver",
-            user = "teoqgnmyw7zvuabg",
-            password = "mludvkrxz27mur4f",
-            generateSqlInUpperCase = true
-        )
-    }
-    single<UserDao> { UserDaoImpl() }
+    single { DatabaseConnection.database }
+    single<UserDao> { UserDaoImpl(get()) }
+    single<PatientDao> { PatientDaoImpl(get()) }
     single<HashingService> { BCryptService() }
     single<TokenService> { JwtTokenService() }
 }

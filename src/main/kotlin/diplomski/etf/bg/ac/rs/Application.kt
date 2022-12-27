@@ -1,12 +1,14 @@
 package diplomski.etf.bg.ac.rs
 
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import diplomski.etf.bg.ac.rs.plugins.*
-import diplomski.etf.bg.ac.rs.security.services.TokenService
+import diplomski.etf.bg.ac.rs.plugins.configureDependencyInjection
+import diplomski.etf.bg.ac.rs.plugins.configureRouting
+import diplomski.etf.bg.ac.rs.plugins.configureSecurity
+import diplomski.etf.bg.ac.rs.plugins.configureSerialization
 import diplomski.etf.bg.ac.rs.security.token.TokenConfig
-import org.koin.ktor.ext.inject
+import io.ktor.server.application.*
+import io.ktor.server.netty.*
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>): Unit =
@@ -14,6 +16,9 @@ fun main(args: Array<String>): Unit =
 
 @Suppress("unused")
 fun Application.module() {
+    if (Files.notExists(Paths.get("./images"))) {
+        Files.createDirectory(Paths.get("./images"))
+    }
     configureDependencyInjection()
     configureSerialization()
 

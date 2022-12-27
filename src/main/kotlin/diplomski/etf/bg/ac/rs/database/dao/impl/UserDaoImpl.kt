@@ -9,9 +9,7 @@ import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.mindrot.jbcrypt.BCrypt
 
-class UserDaoImpl: UserDao {
-
-    private val database: Database by inject()
+class UserDaoImpl(private val database: Database): UserDao {
 
     override fun getUserByEmail(email: String): User? =
         database
