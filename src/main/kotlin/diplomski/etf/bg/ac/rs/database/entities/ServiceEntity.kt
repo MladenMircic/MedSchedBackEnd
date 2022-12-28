@@ -6,7 +6,5 @@ import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 
 object ServiceEntity: Table<Nothing>("service") {
-    val id = int("id").primaryKey()
-    val name = varchar("name")
-    val icon = blob("icon")
+    val name = varchar("name").primaryKey()
 }

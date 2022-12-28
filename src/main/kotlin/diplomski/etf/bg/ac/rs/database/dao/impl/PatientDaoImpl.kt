@@ -19,15 +19,12 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select()
             .map {
                 Service(
-                    id = it[ServiceEntity.id]!!,
-                    name = it[ServiceEntity.name]!!,
-                    icon = it[ServiceEntity.icon]!!
+                    name = it[ServiceEntity.name]!!
                 )
             }
 
     override fun insertService(service: Service): Int =
         database.insert(ServiceEntity) {
             set(it.name, service.name)
-            set(it.icon, service.icon)
         }
 }
