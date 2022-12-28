@@ -13,21 +13,6 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         // TODO implement this
     }
 
-    override fun proba(): Service? =
-        database
-            .from(ServiceEntity)
-            .select()
-            .where {
-                ServiceEntity.id eq 2
-            }
-            .map {
-                Service(
-                    id = it[ServiceEntity.id]!!,
-                    name = it[ServiceEntity.name]!!,
-                    icon = it[ServiceEntity.icon]!!
-                )
-            }.firstOrNull()
-
     override fun getAllServices(): List<Service> =
         database
             .from(ServiceEntity)

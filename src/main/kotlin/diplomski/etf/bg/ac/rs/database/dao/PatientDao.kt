@@ -9,5 +9,4 @@ interface PatientDao {
     fun getScheduledForPatient(user: User)
     fun getAllServices(): List<Service>
     fun insertService(service: Service): Int
-    fun proba(): Service?
 }

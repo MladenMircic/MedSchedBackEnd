@@ -1,5 +1,6 @@
 package diplomski.etf.bg.ac.rs.utils
 
 object Constants {
-    val RESOURCE_DIRECTORY = "${System.getProperty("user.dir")}\\src\\main\\resources"
+    const val AUTHENTICATION_ENDPOINTS = "authentication"
+    const val PATIENT_ENDPOINTS = "patient"
 }
