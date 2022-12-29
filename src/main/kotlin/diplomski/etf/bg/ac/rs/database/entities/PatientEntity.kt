@@ -8,7 +8,7 @@ import org.ktorm.schema.varchar
 // 0 (Doctor)
 // 1 (Patient)
 // 2 (Administrator)
-object UserEntity: Table<Nothing>("user") {
+object PatientEntity: Table<Nothing>("patient") {
     val email = varchar("email").primaryKey()
     val first_name = varchar("first_name")
     val last_name = varchar("last_name")

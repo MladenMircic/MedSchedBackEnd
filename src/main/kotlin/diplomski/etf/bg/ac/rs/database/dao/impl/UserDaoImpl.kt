@@ -1,37 +1,35 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
-import diplomski.etf.bg.ac.rs.database.entities.UserEntity
+import diplomski.etf.bg.ac.rs.database.entities.PatientEntity
 import diplomski.etf.bg.ac.rs.models.database_models.User
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
-import org.koin.core.component.inject
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
-import org.mindrot.jbcrypt.BCrypt
 
 class UserDaoImpl(private val database: Database): UserDao {
 
     override fun getUserByEmail(email: String): User? =
         database
-            .from(UserEntity)
+            .from(PatientEntity)
             .select()
             .where {
-                UserEntity.email eq email
+                PatientEntity.email eq email
             }
             .map {
                 User(
-                    email = it[UserEntity.email]!!,
-                    firstName = it[UserEntity.first_name]!!,
-                    lastName = it[UserEntity.last_name]!!,
-                    password = it[UserEntity.password]!!,
-                    role = it[UserEntity.role]!!,
-                    phone = it[UserEntity.phone]!!,
-                    ssn = it[UserEntity.ssn]!!
+                    email = it[PatientEntity.email]!!,
+                    firstName = it[PatientEntity.first_name]!!,
+                    lastName = it[PatientEntity.last_name]!!,
+                    password = it[PatientEntity.password]!!,
+                    role = it[PatientEntity.role]!!,
+                    phone = it[PatientEntity.phone]!!,
+                    ssn = it[PatientEntity.ssn]!!
                 )
             }.firstOrNull()
 
     override fun insertUser(registerRequest: RegisterRequest): Int =
-        database.insert(UserEntity) {
+        database.insert(PatientEntity) {
             set(it.email, registerRequest.email)
             set(it.first_name, registerRequest.firstName)
             set(it.last_name, registerRequest.lastName)
