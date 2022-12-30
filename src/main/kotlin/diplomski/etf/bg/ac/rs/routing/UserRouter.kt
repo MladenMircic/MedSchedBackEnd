@@ -57,6 +57,7 @@ fun Application.userRouter(config: TokenConfig) {
                         value = loginRequest.role.toString()
                     )
                 )
+                user.password = ""
                 call.respond(
                     LoginResponse(
                         token = jwtToken,

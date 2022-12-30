@@ -7,7 +7,7 @@ data class Patient(
     override val email: String,
     override val firstName: String,
     override val lastName: String,
-    override val password: String,
+    override var password: String,
     val phone: String,
     val ssn: String
 ) : User

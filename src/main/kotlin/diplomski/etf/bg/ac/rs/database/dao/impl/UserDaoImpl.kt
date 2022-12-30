@@ -50,7 +50,7 @@ class UserDaoImpl(private val database: Database): UserDao {
             database.from(PatientEntity)
                 .select()
                 .where {
-                    DoctorEntity.email eq email
+                    PatientEntity.email eq email
                 }
                 .map {
                     Patient(
