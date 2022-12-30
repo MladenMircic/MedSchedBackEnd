@@ -27,7 +27,7 @@ fun Application.userRouter(config: TokenConfig) {
         post("/login") {
 
             val loginRequest = call.receive<LoginRequest>()
-            val user = userDao.getUserByEmail(loginRequest.email)
+            val user = userDao.getUser(loginRequest.email, loginRequest.role)
 
             if (user == null) {
                 call.respond(
@@ -45,15 +45,6 @@ fun Application.userRouter(config: TokenConfig) {
                     )
                 )
                 return@post
-            }
-
-            if (loginRequest.role != user.role) {
-                call.respond(
-                    LoginResponse(
-                        hasRoleError = true
-                    )
-                )
-                return@post
             } else {
                 val jwtToken = tokenService.generate(
                     config = config,
@@ -63,13 +54,13 @@ fun Application.userRouter(config: TokenConfig) {
                     ),
                     TokenClaim(
                         name = "role",
-                        value = user.role.toString()
+                        value = loginRequest.role.toString()
                     )
                 )
                 call.respond(
                     LoginResponse(
                         token = jwtToken,
-                        user = user.copy(password = "")
+                        user = user
                     )
                 )
             }
@@ -78,9 +69,7 @@ fun Application.userRouter(config: TokenConfig) {
         post("/register") {
             val registerRequest = call.receive<RegisterRequest>()
 
-            val user = userDao.getUserByEmail(registerRequest.email)
-
-            if (user != null) {
+            if (userDao.emailExists(registerRequest.email)) {
                 call.respond(
                     RegisterResponse(
                         accountExists = true
