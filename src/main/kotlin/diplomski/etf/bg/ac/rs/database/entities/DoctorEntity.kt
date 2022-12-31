@@ -9,4 +9,5 @@ object DoctorEntity: Table<Nothing>("doctor") {
     val last_name = varchar("last_name")
     val password = varchar("password")
     val phone = varchar("phone")
+    val service = varchar("service")
 }

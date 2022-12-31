@@ -32,5 +32,9 @@ fun Application.patientRouter() {
                 call.respond(patientDao.getAllServices())
             }
         }
+
+        get("/${Constants.PATIENT_ENDPOINTS}/getDoctors") {
+            call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
+        }
     }
 }
