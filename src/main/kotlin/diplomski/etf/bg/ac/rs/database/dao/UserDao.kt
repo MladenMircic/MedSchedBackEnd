@@ -10,6 +10,7 @@ import org.koin.core.component.KoinComponent
 interface UserDao: KoinComponent {
     fun emailExists(email: String): Boolean
 
-    fun getUser(email: String, role: Int): User?
+    fun getPatient(email: String): Patient?
+    fun getDoctor(email: String): Doctor?
     fun insertUser(registerRequest: RegisterRequest): Int
 }

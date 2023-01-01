@@ -28,48 +28,38 @@ class UserDaoImpl(private val database: Database): UserDao {
         return patientExists || doctorExists
     }
 
-    override fun getUser(email: String, role: Int): User? =
-        when (role) {
-            0 -> {
-                database.from(DoctorEntity)
-                    .select()
-                    .where {
-                        DoctorEntity.email eq email
-                    }
-                    .map {
-                        Doctor(
-                            email = it[DoctorEntity.email]!!,
-                            firstName = it[DoctorEntity.first_name]!!,
-                            lastName = it[DoctorEntity.last_name]!!,
-                            password = it[DoctorEntity.password]!!,
-                            phone = it[DoctorEntity.phone]!!
-                        )
-                    }.firstOrNull()
+    override fun getPatient(email: String): Patient? =
+        database.from(PatientEntity)
+            .select()
+            .where {
+                PatientEntity.email eq email
             }
-            1 -> {
-            database.from(PatientEntity)
-                .select()
-                .where {
-                    PatientEntity.email eq email
-                }
-                .map {
-                    Patient(
-                        email = it[PatientEntity.email]!!,
-                        firstName = it[PatientEntity.first_name]!!,
-                        lastName = it[PatientEntity.last_name]!!,
-                        password = it[PatientEntity.password]!!,
-                        phone = it[PatientEntity.phone]!!,
-                        ssn = it[PatientEntity.ssn]!!
-                    )
-                }.firstOrNull()
+            .map {
+                Patient(
+                    email = it[PatientEntity.email]!!,
+                    firstName = it[PatientEntity.first_name]!!,
+                    lastName = it[PatientEntity.last_name]!!,
+                    password = it[PatientEntity.password]!!,
+                    phone = it[PatientEntity.phone]!!,
+                    ssn = it[PatientEntity.ssn]!!
+                )
+            }.firstOrNull()
+
+    override fun getDoctor(email: String): Doctor? =
+        database.from(DoctorEntity)
+            .select()
+            .where {
+                DoctorEntity.email eq email
             }
-            2 -> {
-                null
-            }
-            else -> {
-                null
-            }
-        }
+            .map {
+                Doctor(
+                    email = it[DoctorEntity.email]!!,
+                    firstName = it[DoctorEntity.first_name]!!,
+                    lastName = it[DoctorEntity.last_name]!!,
+                    password = it[DoctorEntity.password]!!,
+                    phone = it[DoctorEntity.phone]!!
+                )
+            }.firstOrNull()
 
     override fun insertUser(registerRequest: RegisterRequest): Int =
         when (registerRequest.role) {

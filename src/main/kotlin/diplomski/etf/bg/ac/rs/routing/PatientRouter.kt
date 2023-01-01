@@ -21,20 +21,22 @@ fun Application.patientRouter() {
     val patientDao: PatientDao by inject()
 
     routing {
-        // Protected static endpoint for getting service icons from server
-        authenticate {
-            static("/clinic-service") {
-                staticRootFolder = File("./images")
-                files(".")
+        route("/${Constants.PATIENT_ENDPOINTS}") {
+            // Protected static endpoint for getting service icons from server
+            authenticate {
+                static("/clinic-service") {
+                    staticRootFolder = File("./images")
+                    files(".")
+                }
+
+                get("/allServices") {
+                    call.respond(patientDao.getAllServices())
+                }
             }
 
-            get("/${Constants.PATIENT_ENDPOINTS}/allServices") {
-                call.respond(patientDao.getAllServices())
+            get("/getDoctors") {
+                call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
             }
-        }
-
-        get("/${Constants.PATIENT_ENDPOINTS}/getDoctors") {
-            call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
         }
     }
 }
