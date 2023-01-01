@@ -1,8 +1,10 @@
 package diplomski.etf.bg.ac.rs.models.database_models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@SerialName("DOCTOR")
 data class Doctor(
     override val email: String,
     override val firstName: String,

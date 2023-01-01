@@ -1,11 +1,9 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
-import diplomski.etf.bg.ac.rs.models.database_models.Patient
 import diplomski.etf.bg.ac.rs.models.requests.LoginRequest
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
 import diplomski.etf.bg.ac.rs.models.responses.LoginResponse
-import diplomski.etf.bg.ac.rs.models.responses.PatientLoginResponse
 import diplomski.etf.bg.ac.rs.models.responses.RegisterResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.security.services.TokenService
@@ -29,42 +27,24 @@ fun Application.userRouter(config: TokenConfig) {
     routing {
         route("/${Constants.AUTHENTICATION_ENDPOINTS}") {
             post("/login") {
-
                 val loginRequest = call.receive<LoginRequest>()
-                val loginResponse: LoginResponse
-                when (loginRequest.role) {
-                    0 -> {
-                        loginResponse = PatientLoginResponse(
-                            patient = userDao.getPatient(loginRequest.email)
-                        )
-                    }
-                    1 -> {
-                        loginResponse = PatientLoginResponse(
-                            patient = userDao.getPatient(loginRequest.email)
-                        )
-                    }
-                    2 -> {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@post
-                    }
-                    else -> {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@post
-                    }
-                }
-                val user = loginResponse.getUser()
+                val user = userDao.getUser(loginRequest.email, loginRequest.role)
 
                 if (user == null) {
-                    loginResponse.hasEmailError = true
-                    loginResponse.setUserNull()
-                    call.respond(loginResponse)
+                    call.respond(
+                        LoginResponse(
+                            hasEmailError = true
+                        )
+                    )
                     return@post
                 }
 
                 if (!hashingService.verifyHash(loginRequest.password, user.password)) {
-                    loginResponse.hasPasswordError = true
-                    loginResponse.setUserNull()
-                    call.respond(loginResponse)
+                    call.respond(
+                        LoginResponse(
+                            hasPasswordError = true
+                        )
+                    )
                     return@post
                 } else {
                     val jwtToken = tokenService.generate(
@@ -79,8 +59,12 @@ fun Application.userRouter(config: TokenConfig) {
                         )
                     )
                     user.password = ""
-                    loginResponse.token = jwtToken
-                    call.respond(loginResponse)
+                    call.respond(
+                        LoginResponse(
+                            token = jwtToken,
+                            user = user
+                        )
+                    )
                 }
             }
 

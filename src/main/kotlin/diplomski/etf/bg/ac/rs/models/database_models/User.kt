@@ -9,3 +9,7 @@ sealed interface User {
     val lastName: String
     var password: String
 }
+
+enum class UserType {
+    PATIENT, DOCTOR, CLINIC
+}
