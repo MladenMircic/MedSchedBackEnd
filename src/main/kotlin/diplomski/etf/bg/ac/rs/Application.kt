@@ -19,13 +19,19 @@ fun Application.module() {
     if (Files.notExists(Paths.get("./images"))) {
         Files.createDirectory(Paths.get("./images"))
     }
+    if (Files.notExists(Paths.get("./images/services"))) {
+        Files.createDirectory(Paths.get("./images/services"))
+    }
+    if (Files.notExists(Paths.get("./images/doctors"))) {
+        Files.createDirectory(Paths.get("./images/doctors"))
+    }
     configureDependencyInjection()
     configureSerialization()
 
     val tokenConfig = TokenConfig(
         issuer = environment.config.property("jwt.issuer").getString(),
         audience = environment.config.property("jwt.audience").getString(),
-        expiresIn = TimeUnit.SECONDS.toMillis(10),
+        expiresIn = TimeUnit.SECONDS.toMillis(60),
         secret = System.getenv("JWT_SECRET")
     )
     configureSecurity(tokenConfig)

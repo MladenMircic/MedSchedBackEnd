@@ -3,6 +3,7 @@ package diplomski.etf.bg.ac.rs.routing
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.database_models.Service
 import diplomski.etf.bg.ac.rs.utils.Constants
+import diplomski.etf.bg.ac.rs.utils.Role
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -22,20 +23,14 @@ fun Application.patientRouter() {
 
     routing {
         route("/${Constants.PATIENT_ENDPOINTS}") {
-            // Protected static endpoint for getting service icons from server
-            authenticate {
-                static("/clinic-service") {
-                    staticRootFolder = File("./images")
-                    files(".")
-                }
-
+            authenticate(Role.PATIENT.name) {
                 get("/allServices") {
                     call.respond(patientDao.getAllServices())
                 }
-            }
 
-            get("/getDoctors") {
-                call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
+                get("/getDoctors") {
+                    call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package diplomski.etf.bg.ac.rs.plugins
 
+import diplomski.etf.bg.ac.rs.routing.imageRouter
 import diplomski.etf.bg.ac.rs.routing.patientRouter
 import diplomski.etf.bg.ac.rs.routing.userRouter
 import diplomski.etf.bg.ac.rs.security.token.TokenConfig
@@ -9,4 +10,5 @@ fun Application.configureRouting(config: TokenConfig) {
 
     userRouter(config)
     patientRouter()
+    imageRouter()
 }
