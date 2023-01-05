@@ -14,26 +14,4 @@ data class RegisterRequest(
     val role: Int,
     val phone: String,
     val ssn: String
-) {
-
-    fun toPatient(): Patient {
-        return Patient(
-            email = email,
-            firstName = firstName,
-            lastName = lastName,
-            password = password,
-            phone = phone,
-            ssn = ssn
-        )
-    }
-
-    fun toDoctor(): Doctor {
-        return Doctor(
-            email = email,
-            firstName = firstName,
-            lastName = lastName,
-            password = password,
-            phone = phone
-        )
-    }
-}
+)

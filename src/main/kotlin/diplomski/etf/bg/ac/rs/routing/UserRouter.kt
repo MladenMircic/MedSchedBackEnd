@@ -50,8 +50,8 @@ fun Application.userRouter(config: TokenConfig) {
                     val jwtToken = tokenService.generate(
                         config = config,
                         TokenClaim(
-                            name = "email",
-                            value = user.email
+                            name = "id",
+                            value = user.id.toString()
                         ),
                         TokenClaim(
                             name = "role",

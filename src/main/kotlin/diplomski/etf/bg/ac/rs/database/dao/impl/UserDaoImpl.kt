@@ -38,6 +38,7 @@ class UserDaoImpl(private val database: Database): UserDao {
                     }
                     .map {
                         Doctor(
+                            id = it[DoctorEntity.id]!!,
                             email = it[DoctorEntity.email]!!,
                             firstName = it[DoctorEntity.first_name]!!,
                             lastName = it[DoctorEntity.last_name]!!,
@@ -54,6 +55,7 @@ class UserDaoImpl(private val database: Database): UserDao {
                     }
                     .map {
                         Patient(
+                            id = it[PatientEntity.id]!!,
                             email = it[PatientEntity.email]!!,
                             firstName = it[PatientEntity.first_name]!!,
                             lastName = it[PatientEntity.last_name]!!,
