@@ -31,7 +31,7 @@ fun Application.module() {
     val tokenConfig = TokenConfig(
         issuer = environment.config.property("jwt.issuer").getString(),
         audience = environment.config.property("jwt.audience").getString(),
-        expiresIn = TimeUnit.SECONDS.toMillis(60),
+        expiresIn = TimeUnit.DAYS.toMillis(365L),
         secret = System.getenv("JWT_SECRET")
     )
     configureSecurity(tokenConfig)
