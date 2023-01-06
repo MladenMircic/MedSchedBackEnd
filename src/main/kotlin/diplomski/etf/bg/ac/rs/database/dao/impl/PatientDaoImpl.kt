@@ -1,11 +1,18 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
+import diplomski.etf.bg.ac.rs.database.entities.AppointmentEntity
+import diplomski.etf.bg.ac.rs.database.entities.CategoryEntity
 import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
-import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
-import diplomski.etf.bg.ac.rs.models.database_models.Service
-import diplomski.etf.bg.ac.rs.models.database_models.User
+import diplomski.etf.bg.ac.rs.models.database_models.Appointment
+import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.DoctorsForPatient
+import diplomski.etf.bg.ac.rs.models.database_models.User
+import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toKotlinLocalDate
+import kotlinx.datetime.toKotlinLocalTime
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
 
@@ -15,19 +22,19 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         // TODO implement this
     }
 
-    override fun getAllServices(): List<Service> =
+    override fun getAllCategories(): List<Category> =
         database
-            .from(ServiceEntity)
+            .from(CategoryEntity)
             .select()
             .map {
-                Service(
-                    name = it[ServiceEntity.name]!!
+                Category(
+                    name = it[CategoryEntity.name]!!
                 )
             }
 
-    override fun insertService(service: Service): Int =
-        database.insert(ServiceEntity) {
-            set(it.name, service.name)
+    override fun insertService(category: Category): Int =
+        database.insert(CategoryEntity) {
+            set(it.name, category.name)
         }
 
     override fun getDoctors(category: String?): List<DoctorsForPatient> {
@@ -48,4 +55,24 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             )
         }
     }
+
+    override fun getAllAppointmentsForDoctorAtDate(appointmentsRequest: AppointmentsRequest): List<Appointment> =
+        database
+            .from(AppointmentEntity)
+            .select()
+            .where {
+                (AppointmentEntity.doctor_id eq appointmentsRequest.doctorId) and
+                        (AppointmentEntity.date eq appointmentsRequest.date.toJavaLocalDate())
+            }
+            .orderBy(AppointmentEntity.time.asc())
+            .map {
+                Appointment(
+                    id = it[AppointmentEntity.id]!!,
+                    date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
+                    time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
+                    doctorId = it[AppointmentEntity.doctor_id]!!,
+                    patientId = it[AppointmentEntity.patient_id]!!,
+                    examName = it[AppointmentEntity.exam_name]!!
+                )
+            }
 }
