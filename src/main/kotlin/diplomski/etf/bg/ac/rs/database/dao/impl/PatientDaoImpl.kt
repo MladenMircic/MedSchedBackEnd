@@ -44,6 +44,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         }
         return query.map {
             DoctorsForPatient(
+                id = it[DoctorEntity.id]!!,
                 email = it[DoctorEntity.email]!!,
                 firstName = it[DoctorEntity.first_name]!!,
                 lastName = it[DoctorEntity.last_name]!!,
