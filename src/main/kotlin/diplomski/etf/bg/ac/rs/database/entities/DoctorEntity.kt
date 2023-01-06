@@ -12,4 +12,5 @@ object DoctorEntity: Table<Nothing>("doctor") {
     val password = varchar("password")
     val phone = varchar("phone")
     val service = varchar("service")
+    val specialization = varchar("specialization")
 }

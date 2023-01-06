@@ -27,6 +27,10 @@ fun Application.patientRouter() {
                     call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
                 }
 
+                get("/getServicesForDoctor/{doctorId}") {
+                    call.respond(patientDao.getAllServicesForDoctor(call.parameters["doctorId"]?.toInt() ?: 1))
+                }
+
                 post("/scheduledAppointmentsForDoctor") {
                     val appointmentsRequest = call.receive<AppointmentsRequest>()
                     call.respond(patientDao.getAllAppointmentsForDoctorAtDate(appointmentsRequest))

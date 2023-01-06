@@ -4,12 +4,9 @@ import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.database.entities.AppointmentEntity
 import diplomski.etf.bg.ac.rs.database.entities.CategoryEntity
 import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
-import diplomski.etf.bg.ac.rs.models.database_models.Appointment
-import diplomski.etf.bg.ac.rs.models.database_models.Category
-import diplomski.etf.bg.ac.rs.models.database_models.DoctorsForPatient
-import diplomski.etf.bg.ac.rs.models.database_models.User
+import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
+import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.datetime.toKotlinLocalTime
@@ -51,7 +48,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 firstName = it[DoctorEntity.first_name]!!,
                 lastName = it[DoctorEntity.last_name]!!,
                 phone = it[DoctorEntity.phone]!!,
-                service = it[DoctorEntity.service]!!
+                service = it[DoctorEntity.service]!!,
+                specialization = it[DoctorEntity.specialization]!!
             )
         }
     }
@@ -73,6 +71,22 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     doctorId = it[AppointmentEntity.doctor_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
                     examName = it[AppointmentEntity.exam_name]!!
+                )
+            }
+
+    override fun getAllServicesForDoctor(doctorId: Int): List<Service> =
+        database
+            .from(DoctorEntity)
+            .innerJoin(ServiceEntity, on = DoctorEntity.service eq ServiceEntity.category)
+            .select(ServiceEntity.id, ServiceEntity.name, ServiceEntity.category)
+            .where {
+                DoctorEntity.id eq doctorId
+            }
+            .map {
+                Service(
+                    id = it[ServiceEntity.id]!!,
+                    name = it[ServiceEntity.name]!!,
+                    category = it[ServiceEntity.category]!!
                 )
             }
 }
