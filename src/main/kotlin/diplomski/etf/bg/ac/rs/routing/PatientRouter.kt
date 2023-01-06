@@ -5,6 +5,7 @@ import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.utils.Constants
 import diplomski.etf.bg.ac.rs.utils.Role
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -34,6 +35,15 @@ fun Application.patientRouter() {
                 post("/scheduledAppointmentsForDoctor") {
                     val appointmentsRequest = call.receive<AppointmentsRequest>()
                     call.respond(patientDao.getAllAppointmentsForDoctorAtDate(appointmentsRequest))
+                }
+
+                post("/scheduleAppointment") {
+                    val appointment = call.receive<Appointment>()
+                    call.respond(
+                        if (patientDao.scheduleAppointment(appointment) == 0)
+                            HttpStatusCode.InternalServerError
+                        else HttpStatusCode.OK
+                    )
                 }
             }
         }

@@ -8,6 +8,7 @@ import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.datetime.toKotlinLocalTime
 import org.ktorm.database.Database
@@ -90,4 +91,14 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     category = it[ServiceEntity.category]!!
                 )
             }
+
+    override fun scheduleAppointment(appointment: Appointment): Int =
+        database.insert(AppointmentEntity) {
+            set(it.id, appointment.id)
+            set(it.date, appointment.date.toJavaLocalDate())
+            set(it.time, appointment.time.toJavaLocalTime())
+            set(it.doctor_id, appointment.doctorId)
+            set(it.patient_id, appointment.patientId)
+            set(it.exam_name, appointment.examName)
+        }
 }
