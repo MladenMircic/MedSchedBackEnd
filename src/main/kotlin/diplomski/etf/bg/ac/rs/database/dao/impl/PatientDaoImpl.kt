@@ -7,6 +7,7 @@ import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
 import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.responses.ScheduledResponse
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toKotlinLocalDate
@@ -16,9 +17,32 @@ import org.ktorm.dsl.*
 
 class PatientDaoImpl(private val database: Database): PatientDao {
 
-    override fun getScheduledForPatient(user: User) {
-        // TODO implement this
-    }
+    override fun getScheduledForPatient(patientId: Int): List<ScheduledResponse> =
+        database
+            .from(AppointmentEntity)
+            .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
+            .select(
+                DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization,
+                AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_name
+            )
+            .where {
+                AppointmentEntity.patient_id eq patientId
+            }
+            .map {
+                ScheduledResponse(
+                    doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
+                    doctorSpecialization = it[DoctorEntity.specialization]!!,
+                    appointment = Appointment(
+                        id = it[AppointmentEntity.id]!!,
+                        date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
+                        time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
+                        doctorId = it[AppointmentEntity.doctor_id]!!,
+                        patientId = it[AppointmentEntity.patient_id]!!,
+                        examName = it[AppointmentEntity.exam_name]!!
+                    )
+                )
+            }
 
     override fun getAllCategories(): List<Category> =
         database
@@ -101,4 +125,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.patient_id, appointment.patientId)
             set(it.exam_name, appointment.examName)
         }
+
+    override fun cancelAppointment(appointmentId: Int): Int =
+        database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }
 }
