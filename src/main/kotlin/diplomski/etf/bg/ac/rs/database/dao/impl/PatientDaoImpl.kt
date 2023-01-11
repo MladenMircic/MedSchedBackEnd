@@ -13,6 +13,24 @@ import org.ktorm.database.Database
 import org.ktorm.dsl.*
 
 class PatientDaoImpl(private val database: Database): PatientDao {
+    override fun getPatientById(patientId: Int): Patient? =
+        database
+            .from(PatientEntity)
+            .select()
+            .where {
+                PatientEntity.id eq patientId
+            }
+            .map {
+                Patient(
+                    id = patientId,
+                    email = it[PatientEntity.email]!!,
+                    firstName = it[PatientEntity.first_name]!!,
+                    lastName = it[PatientEntity.last_name]!!,
+                    password = it[PatientEntity.password]!!,
+                    phone = it[PatientEntity.phone]!!,
+                    ssn = it[PatientEntity.ssn]!!
+                )
+            }.firstOrNull()
 
     override fun getScheduledForPatient(patientId: Int): List<ScheduledResponse> =
         database
@@ -129,6 +147,14 @@ class PatientDaoImpl(private val database: Database): PatientDao {
     override fun updateEmail(patientId: Int, email: String): Int =
         database.update(PatientEntity) {
             set(it.email, email)
+            where {
+                it.id eq patientId
+            }
+        }
+
+    override fun updatePassword(patientId: Int, newPassword: String): Int =
+        database.update(PatientEntity) {
+            set(it.password, newPassword)
             where {
                 it.id eq patientId
             }

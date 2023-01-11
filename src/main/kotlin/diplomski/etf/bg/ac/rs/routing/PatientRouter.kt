@@ -4,6 +4,9 @@ import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
+import diplomski.etf.bg.ac.rs.models.requests.PasswordChangeRequest
+import diplomski.etf.bg.ac.rs.models.responses.PasswordChangeResponse
+import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.utils.Constants
 import diplomski.etf.bg.ac.rs.utils.Role
 import io.ktor.http.*
@@ -18,6 +21,8 @@ import org.koin.ktor.ext.inject
 fun Application.patientRouter() {
 
     val patientDao: PatientDao by inject()
+    val hashingService: HashingService by inject()
+
     routing {
         route("/${Constants.PATIENT_ENDPOINTS}") {
             authenticate(Role.PATIENT.name) {
@@ -74,6 +79,36 @@ fun Application.patientRouter() {
                         ) HttpStatusCode.InternalServerError
                         else HttpStatusCode.OK
                     )
+                }
+
+                post("/updatePassword") {
+                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString().toInt()
+                    val passwordChangeRequest = call.receive<PasswordChangeRequest>()
+                    val patient = patientDao.getPatientById(patientId)
+                    if (patient == null) {
+                        call.respond(
+                            HttpStatusCode.InternalServerError,
+                            PasswordChangeResponse()
+                        )
+                    }
+                    else {
+                        if (!hashingService.verifyHash(passwordChangeRequest.oldPassword, patient.password)) {
+                            call.respond(
+                                HttpStatusCode.InternalServerError,
+                                PasswordChangeResponse(oldPasswordCorrect = false)
+                            )
+                        }
+                        else {
+                            call.respond(
+                                PasswordChangeResponse(
+                                    passwordUpdateSuccess = patientDao.updatePassword(
+                                        patientId = patientId,
+                                        newPassword = hashingService.generateHash(passwordChangeRequest.newPassword)
+                                    ) != 0
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }

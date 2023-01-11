@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 // General dao for accessing patient related data
 interface PatientDao {
 
+    fun getPatientById(patientId: Int): Patient?
     fun getScheduledForPatient(patientId: Int): List<ScheduledResponse>
     fun getAllCategories(): List<Category>
     fun insertService(category: Category): Int
@@ -18,4 +19,5 @@ interface PatientDao {
     fun scheduleAppointment(appointment: Appointment): Int
     fun cancelAppointment(appointmentId: Int): Int
     fun updateEmail(patientId: Int, email: String): Int
+    fun updatePassword(patientId: Int, newPassword: String): Int
 }
