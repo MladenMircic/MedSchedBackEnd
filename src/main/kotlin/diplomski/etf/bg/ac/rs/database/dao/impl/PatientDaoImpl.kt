@@ -1,10 +1,7 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
-import diplomski.etf.bg.ac.rs.database.entities.AppointmentEntity
-import diplomski.etf.bg.ac.rs.database.entities.CategoryEntity
-import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
-import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
+import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.responses.ScheduledResponse
@@ -128,4 +125,12 @@ class PatientDaoImpl(private val database: Database): PatientDao {
 
     override fun cancelAppointment(appointmentId: Int): Int =
         database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }
+
+    override fun updateEmail(patientId: Int, email: String): Int =
+        database.update(PatientEntity) {
+            set(it.email, email)
+            where {
+                it.id eq patientId
+            }
+        }
 }

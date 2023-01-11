@@ -3,6 +3,7 @@ package diplomski.etf.bg.ac.rs.routing
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
 import diplomski.etf.bg.ac.rs.utils.Constants
 import diplomski.etf.bg.ac.rs.utils.Role
 import io.ktor.http.*
@@ -62,6 +63,18 @@ fun Application.patientRouter() {
                     )
                 }
 
+                post("/updateEmail") {
+                    val principal = call.principal<JWTPrincipal>()
+                    val emailChangeRequest = call.receive<EmailChangeRequest>()
+                    call.respond(
+                        if (patientDao.updateEmail(
+                                patientId = principal!!.payload.getClaim("id").asString().toInt(),
+                                email = emailChangeRequest.email
+                            ) == 0
+                        ) HttpStatusCode.InternalServerError
+                        else HttpStatusCode.OK
+                    )
+                }
             }
         }
     }
