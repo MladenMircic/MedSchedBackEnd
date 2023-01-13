@@ -7,6 +7,8 @@ import diplomski.etf.bg.ac.rs.plugins.configureSerialization
 import diplomski.etf.bg.ac.rs.security.token.TokenConfig
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
+import net.axay.simplekotlinmail.email.emailBuilder
+import org.simplejavamail.email.EmailBuilder
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit

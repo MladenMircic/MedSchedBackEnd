@@ -4,6 +4,7 @@ import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
+import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.PasswordChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.PasswordChangeResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
@@ -69,11 +70,11 @@ fun Application.patientRouter() {
                 }
 
                 post("/updateEmail") {
-                    val principal = call.principal<JWTPrincipal>()
+                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString().toInt()
                     val emailChangeRequest = call.receive<EmailChangeRequest>()
                     call.respond(
                         if (patientDao.updateEmail(
-                                patientId = principal!!.payload.getClaim("id").asString().toInt(),
+                                patientId = patientId,
                                 email = emailChangeRequest.email
                             ) == 0
                         ) HttpStatusCode.InternalServerError
@@ -109,6 +110,19 @@ fun Application.patientRouter() {
                             )
                         }
                     }
+                }
+
+                post("/updateInfo") {
+                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString().toInt()
+                    val infoChangeRequest = call.receive<InfoChangeRequest>()
+                    call.respond(
+                        if (patientDao.updateInfo(
+                                patientId = patientId,
+                                infoChangeRequest = infoChangeRequest
+                            ) == 0
+                        ) HttpStatusCode.InternalServerError
+                        else HttpStatusCode.OK
+                    )
                 }
             }
         }

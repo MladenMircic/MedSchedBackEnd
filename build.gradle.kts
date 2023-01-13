@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val ktor_version: String by project
 val koin_version: String by project
 val kotlin_version: String by project
@@ -47,4 +49,7 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
+    implementation("net.axay:simplekotlinmail-core:1.4.0")
+    implementation("net.axay:simplekotlinmail-client:1.4.0")
 }

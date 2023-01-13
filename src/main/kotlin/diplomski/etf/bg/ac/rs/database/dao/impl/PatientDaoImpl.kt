@@ -4,6 +4,7 @@ import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.ScheduledResponse
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
@@ -147,16 +148,21 @@ class PatientDaoImpl(private val database: Database): PatientDao {
     override fun updateEmail(patientId: Int, email: String): Int =
         database.update(PatientEntity) {
             set(it.email, email)
-            where {
-                it.id eq patientId
-            }
+            where { it.id eq patientId }
         }
 
     override fun updatePassword(patientId: Int, newPassword: String): Int =
         database.update(PatientEntity) {
             set(it.password, newPassword)
-            where {
-                it.id eq patientId
-            }
+            where { it.id eq patientId }
+        }
+
+    override fun updateInfo(patientId: Int, infoChangeRequest: InfoChangeRequest): Int =
+        database.update(PatientEntity) {
+            set(it.first_name, infoChangeRequest.firstName)
+            set(it.last_name, infoChangeRequest.lastName)
+            set(it.phone, infoChangeRequest.phone)
+            set(it.ssn, infoChangeRequest.ssn)
+            where { it.id eq patientId }
         }
 }

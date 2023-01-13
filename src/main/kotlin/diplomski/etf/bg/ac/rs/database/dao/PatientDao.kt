@@ -2,6 +2,7 @@ package diplomski.etf.bg.ac.rs.database.dao
 
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.ScheduledResponse
 import kotlinx.datetime.LocalDate
 import java.time.LocalDateTime
@@ -20,4 +21,5 @@ interface PatientDao {
     fun cancelAppointment(appointmentId: Int): Int
     fun updateEmail(patientId: Int, email: String): Int
     fun updatePassword(patientId: Int, newPassword: String): Int
+    fun updateInfo(patientId: Int, infoChangeRequest: InfoChangeRequest): Int
 }
