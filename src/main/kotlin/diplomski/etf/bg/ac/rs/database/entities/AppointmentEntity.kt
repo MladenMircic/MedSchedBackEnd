@@ -8,5 +8,5 @@ object AppointmentEntity: Table<Nothing>("appointment") {
     val time = time("time")
     val doctor_id = int("doctor_id")
     val patient_id = int("patient_id")
-    val exam_name = varchar("exam_name")
+    val exam_id = int("exam_id")
 }

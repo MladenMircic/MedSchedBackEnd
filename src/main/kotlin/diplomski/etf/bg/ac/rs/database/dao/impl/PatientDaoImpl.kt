@@ -38,9 +38,9 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .from(AppointmentEntity)
             .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
             .select(
-                DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization,
+                DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_name
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id
             )
             .where {
                 AppointmentEntity.patient_id eq patientId
@@ -48,14 +48,14 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .map {
                 ScheduledResponse(
                     doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
-                    doctorSpecialization = it[DoctorEntity.specialization]!!,
+                    doctorSpecializationId = it[DoctorEntity.specialization_id]!!,
                     appointment = Appointment(
                         id = it[AppointmentEntity.id]!!,
                         date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
-                        examName = it[AppointmentEntity.exam_name]!!
+                        examId = it[AppointmentEntity.exam_id]!!
                     )
                 )
             }
@@ -66,6 +66,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select()
             .map {
                 Category(
+                    id = it[CategoryEntity.id]!!,
                     name = it[CategoryEntity.name]!!
                 )
             }
@@ -75,12 +76,12 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.name, category.name)
         }
 
-    override fun getDoctors(category: String?): List<DoctorsForPatient> {
+    override fun getDoctors(categoryId: String?): List<DoctorsForPatient> {
         var query = database.from(DoctorEntity).select()
-        if (category != null && category != "") {
-            println(category)
+        if (categoryId != null && categoryId != "") {
+            println(categoryId)
             query = query.where {
-                DoctorEntity.service eq category
+                DoctorEntity.category_id eq categoryId.toInt()
             }
         }
         return query.map {
@@ -90,8 +91,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 firstName = it[DoctorEntity.first_name]!!,
                 lastName = it[DoctorEntity.last_name]!!,
                 phone = it[DoctorEntity.phone]!!,
-                service = it[DoctorEntity.service]!!,
-                specialization = it[DoctorEntity.specialization]!!
+                serviceId = it[DoctorEntity.category_id]!!,
+                specializationId = it[DoctorEntity.specialization_id]!!
             )
         }
     }
@@ -112,15 +113,15 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                     doctorId = it[AppointmentEntity.doctor_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
-                    examName = it[AppointmentEntity.exam_name]!!
+                    examId = it[AppointmentEntity.exam_id]!!
                 )
             }
 
     override fun getAllServicesForDoctor(doctorId: Int): List<Service> =
         database
             .from(DoctorEntity)
-            .innerJoin(ServiceEntity, on = DoctorEntity.service eq ServiceEntity.category)
-            .select(ServiceEntity.id, ServiceEntity.name, ServiceEntity.category)
+            .innerJoin(ServiceEntity, on = DoctorEntity.category_id eq ServiceEntity.category_id)
+            .select(ServiceEntity.id, ServiceEntity.name, ServiceEntity.category_id)
             .where {
                 DoctorEntity.id eq doctorId
             }
@@ -128,7 +129,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 Service(
                     id = it[ServiceEntity.id]!!,
                     name = it[ServiceEntity.name]!!,
-                    category = it[ServiceEntity.category]!!
+                    categoryId = it[ServiceEntity.category_id]!!
                 )
             }
 
@@ -139,7 +140,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.time, appointment.time.toJavaLocalTime())
             set(it.doctor_id, appointment.doctorId)
             set(it.patient_id, appointment.patientId)
-            set(it.exam_name, appointment.examName)
+            set(it.exam_id, appointment.examId)
         }
 
     override fun cancelAppointment(appointmentId: Int): Int =

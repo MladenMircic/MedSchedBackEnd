@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class Service(
     val id: Int,
     val name: String,
-    val category: String
+    val categoryId: Int
 )

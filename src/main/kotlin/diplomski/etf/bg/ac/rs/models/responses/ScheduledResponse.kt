@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ScheduledResponse(
     val doctorName: String,
-    val doctorSpecialization: String,
+    val doctorSpecializationId: Int,
     val appointment: Appointment
 )

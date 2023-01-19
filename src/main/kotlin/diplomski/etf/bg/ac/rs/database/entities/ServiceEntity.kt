@@ -7,5 +7,5 @@ import org.ktorm.schema.varchar
 object ServiceEntity: Table<Nothing>("service") {
     val id = int("id").primaryKey()
     val name = varchar("name")
-    val category = varchar("category")
+    val category_id = int("category_id")
 }

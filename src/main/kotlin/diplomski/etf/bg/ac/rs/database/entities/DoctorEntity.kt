@@ -11,6 +11,6 @@ object DoctorEntity: Table<Nothing>("doctor") {
     val last_name = varchar("last_name")
     val password = varchar("password")
     val phone = varchar("phone")
-    val service = varchar("service")
-    val specialization = varchar("specialization")
+    val category_id = int("category_id")
+    val specialization_id = int("specialization_id")
 }

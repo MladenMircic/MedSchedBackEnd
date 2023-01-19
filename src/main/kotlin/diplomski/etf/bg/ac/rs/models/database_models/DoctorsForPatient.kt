@@ -9,6 +9,6 @@ data class DoctorsForPatient(
     val firstName: String,
     val lastName: String,
     val phone: String,
-    val service: String,
-    val specialization: String
+    val serviceId: Int,
+    val specializationId: Int
 )

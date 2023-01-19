@@ -11,5 +11,5 @@ data class Appointment(
     val time: LocalTime,
     val doctorId: Int,
     val patientId: Int,
-    val examName: String
+    val examId: Int
 )
