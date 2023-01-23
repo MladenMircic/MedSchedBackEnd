@@ -45,6 +45,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .where {
                 AppointmentEntity.patient_id eq patientId
             }
+            .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
                 ScheduledResponse(
                     doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
@@ -105,7 +106,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 (AppointmentEntity.doctor_id eq appointmentsRequest.doctorId) and
                         (AppointmentEntity.date eq appointmentsRequest.date.toJavaLocalDate())
             }
-            .orderBy(AppointmentEntity.time.asc())
+            .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
                 Appointment(
                     id = it[AppointmentEntity.id]!!,
