@@ -40,7 +40,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select(
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
+                AppointmentEntity.confirmed
             )
             .where {
                 AppointmentEntity.patient_id eq patientId
@@ -56,7 +57,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
-                        examId = it[AppointmentEntity.exam_id]!!
+                        examId = it[AppointmentEntity.exam_id]!!,
+                        confirmed = it[AppointmentEntity.confirmed]!!
                     )
                 )
             }
@@ -77,12 +79,12 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.name, category.name)
         }
 
-    override fun getDoctors(categoryId: String?): List<DoctorsForPatient> {
+    override fun getDoctors(category: String?): List<DoctorsForPatient> {
         var query = database.from(DoctorEntity).select()
-        if (categoryId != null && categoryId != "") {
-            println(categoryId)
+        if (category != null && category != "") {
+            println(category)
             query = query.where {
-                DoctorEntity.category_id eq categoryId.toInt()
+                DoctorEntity.category_id eq category.toInt()
             }
         }
         return query.map {
@@ -114,7 +116,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                     doctorId = it[AppointmentEntity.doctor_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
-                    examId = it[AppointmentEntity.exam_id]!!
+                    examId = it[AppointmentEntity.exam_id]!!,
+                    confirmed = it[AppointmentEntity.confirmed]!!
                 )
             }
 
@@ -142,6 +145,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.doctor_id, appointment.doctorId)
             set(it.patient_id, appointment.patientId)
             set(it.exam_id, appointment.examId)
+            set(it.confirmed, true)
         }
 
     override fun cancelAppointment(appointmentId: Int): Int =

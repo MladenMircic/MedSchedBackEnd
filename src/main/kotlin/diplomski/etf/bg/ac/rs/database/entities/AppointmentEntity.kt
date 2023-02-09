@@ -9,4 +9,5 @@ object AppointmentEntity: Table<Nothing>("appointment") {
     val doctor_id = int("doctor_id")
     val patient_id = int("patient_id")
     val exam_id = int("exam_id")
+    val confirmed = boolean("confirmed")
 }
