@@ -5,7 +5,7 @@ import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
-import diplomski.etf.bg.ac.rs.models.responses.ScheduledResponse
+import diplomski.etf.bg.ac.rs.models.responses.AppointmentWithDoctorResponse
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toKotlinLocalDate
@@ -33,7 +33,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }.firstOrNull()
 
-    override fun getScheduledForPatient(patientId: Int): List<ScheduledResponse> =
+    override fun getAppointmentsWithDoctorForPatient(patientId: Int): List<AppointmentWithDoctorResponse> =
         database
             .from(AppointmentEntity)
             .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
@@ -48,7 +48,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             }
             .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
-                ScheduledResponse(
+                AppointmentWithDoctorResponse(
                     doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
                     doctorSpecializationId = it[DoctorEntity.specialization_id]!!,
                     appointment = Appointment(
@@ -62,6 +62,36 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     )
                 )
             }
+
+    override fun getAppointmentWithDoctorById(appointmentId: Int): AppointmentWithDoctorResponse? =
+        database
+            .from(AppointmentEntity)
+            .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
+            .select(
+                DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
+                AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
+                AppointmentEntity.confirmed
+            )
+            .where {
+                AppointmentEntity.id eq appointmentId
+            }
+            .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
+            .map {
+                AppointmentWithDoctorResponse(
+                    doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
+                    doctorSpecializationId = it[DoctorEntity.specialization_id]!!,
+                    appointment = Appointment(
+                        id = it[AppointmentEntity.id]!!,
+                        date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
+                        time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
+                        doctorId = it[AppointmentEntity.doctor_id]!!,
+                        patientId = it[AppointmentEntity.patient_id]!!,
+                        examId = it[AppointmentEntity.exam_id]!!,
+                        confirmed = it[AppointmentEntity.confirmed]!!
+                    )
+                )
+            }.firstOrNull()
 
     override fun getAllCategories(): List<Category> =
         database
@@ -137,8 +167,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }
 
-    override fun scheduleAppointment(appointment: Appointment): Int =
-        database.insert(AppointmentEntity) {
+    override fun scheduleAppointment(appointment: Appointment): Int {
+        val id = database.insertAndGenerateKey(AppointmentEntity) {
             set(it.id, appointment.id)
             set(it.date, appointment.date.toJavaLocalDate())
             set(it.time, appointment.time.toJavaLocalTime())
@@ -147,6 +177,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.exam_id, appointment.examId)
             set(it.confirmed, true)
         }
+        return id as Int
+    }
 
     override fun cancelAppointment(appointmentId: Int): Int =
         database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }

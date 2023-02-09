@@ -6,6 +6,7 @@ import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.PasswordChangeRequest
+import diplomski.etf.bg.ac.rs.models.responses.AppointmentWithDoctorResponse
 import diplomski.etf.bg.ac.rs.models.responses.PasswordChangeResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.utils.Constants
@@ -29,7 +30,7 @@ fun Application.patientRouter() {
             authenticate(Role.PATIENT.name) {
                 get("/allScheduled") {
                     val principal = call.principal<JWTPrincipal>()
-                    call.respond(patientDao.getScheduledForPatient(
+                    call.respond(patientDao.getAppointmentsWithDoctorForPatient(
                         principal!!.payload.getClaim("id").asString().toInt()
                     ))
                 }
@@ -53,11 +54,14 @@ fun Application.patientRouter() {
 
                 post("/scheduleAppointment") {
                     val appointment = call.receive<Appointment>()
-                    call.respond(
-                        if (patientDao.scheduleAppointment(appointment) == 0)
-                            HttpStatusCode.InternalServerError
-                        else HttpStatusCode.OK
-                    )
+                    val appointmentId = patientDao.scheduleAppointment(appointment)
+                    try {
+                        val appointmentWithDoctor = patientDao.getAppointmentWithDoctorById(appointmentId)
+                            ?: throw Exception()
+                        call.respond(appointmentWithDoctor)
+                    } catch(e: Exception) {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    }
                 }
 
                 delete("/cancelAppointment/{appointmentId}") {
