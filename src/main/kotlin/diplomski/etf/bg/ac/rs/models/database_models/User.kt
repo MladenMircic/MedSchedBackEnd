@@ -6,8 +6,6 @@ import kotlinx.serialization.Serializable
 sealed interface User {
     val id: Int
     val email: String
-    val firstName: String
-    val lastName: String
     var password: String
 }
 

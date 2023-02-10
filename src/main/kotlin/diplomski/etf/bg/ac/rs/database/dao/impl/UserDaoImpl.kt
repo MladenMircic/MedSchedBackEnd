@@ -1,12 +1,15 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
+import diplomski.etf.bg.ac.rs.database.entities.ClinicEntity
 import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
 import diplomski.etf.bg.ac.rs.database.entities.PatientEntity
+import diplomski.etf.bg.ac.rs.models.database_models.Clinic
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.database_models.Patient
 import diplomski.etf.bg.ac.rs.models.database_models.User
 import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
+import kotlinx.datetime.toKotlinLocalTime
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
 
@@ -68,7 +71,21 @@ class UserDaoImpl(private val database: Database): UserDao {
                     }.firstOrNull()
             }
             2 -> {
-                null
+                database.from(ClinicEntity)
+                    .select()
+                    .where {
+                        ClinicEntity.email eq email
+                    }
+                    .map {
+                        Clinic(
+                            id = it[ClinicEntity.id]!!,
+                            email = it[ClinicEntity.email]!!,
+                            password = it[ClinicEntity.password]!!,
+                            name = it[ClinicEntity.name]!!,
+                            openingTime = it[ClinicEntity.opening_time]!!.toKotlinLocalTime(),
+                            workHours = it[ClinicEntity.work_hours]!!
+                        )
+                    }.firstOrNull()
             }
             else -> {
                 null

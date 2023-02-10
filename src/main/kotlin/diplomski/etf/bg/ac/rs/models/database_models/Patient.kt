@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 data class Patient(
     override val id: Int,
     override val email: String,
-    override val firstName: String,
-    override val lastName: String,
+    val firstName: String,
+    val lastName: String,
     override var password: String,
     val phone: String,
     val ssn: String
