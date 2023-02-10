@@ -179,7 +179,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.doctor_id, appointment.doctorId)
             set(it.patient_id, appointment.patientId)
             set(it.exam_id, appointment.examId)
-            set(it.confirmed, true)
+            set(it.confirmed, appointment.confirmed)
+            set(it.cancelled_by, appointment.cancelledBy)
         }
         return id as Int
     }
