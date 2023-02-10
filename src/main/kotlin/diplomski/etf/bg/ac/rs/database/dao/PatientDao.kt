@@ -17,7 +17,7 @@ interface PatientDao {
     fun getAllAppointmentsForDoctorAtDate(appointmentsRequest: AppointmentsRequest): List<Appointment>
     fun getAllServicesForDoctor(doctorId: Int): List<Service>
     fun scheduleAppointment(appointment: Appointment): Int
-    fun cancelAppointment(appointmentId: Int): Int
+    fun cancelAppointment(appointmentId: Int, callerRole: Int): Int
     fun updateEmail(patientId: Int, email: String): Int
     fun updatePassword(patientId: Int, newPassword: String): Int
     fun updateInfo(patientId: Int, infoChangeRequest: InfoChangeRequest): Int

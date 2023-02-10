@@ -65,8 +65,9 @@ fun Application.patientRouter() {
 
                 delete("/cancelAppointment/{appointmentId}") {
                     val appointmentId = call.parameters["appointmentId"]?.toInt()!!
+                    val callerRole = call.principal<JWTPrincipal>()!!.payload.getClaim("role").asString().toInt()
                     call.respond(
-                        if (patientDao.cancelAppointment(appointmentId) == 0)
+                        if (patientDao.cancelAppointment(appointmentId, callerRole) == 0)
                             HttpStatusCode.InternalServerError
                         else HttpStatusCode.OK
                     )

@@ -12,5 +12,6 @@ data class Appointment(
     val doctorId: Int,
     val patientId: Int,
     val examId: Int,
-    val confirmed: Boolean
+    val confirmed: Boolean,
+    val cancelledBy: Int
 )

@@ -41,7 +41,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
                 AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
-                AppointmentEntity.confirmed
+                AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
                 AppointmentEntity.patient_id eq patientId
@@ -58,7 +58,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                         doctorId = it[AppointmentEntity.doctor_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
                         examId = it[AppointmentEntity.exam_id]!!,
-                        confirmed = it[AppointmentEntity.confirmed]!!
+                        confirmed = it[AppointmentEntity.confirmed]!!,
+                        cancelledBy = it[AppointmentEntity.cancelled_by]!!
                     )
                 )
             }
@@ -71,7 +72,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
                 AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
-                AppointmentEntity.confirmed
+                AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
                 AppointmentEntity.id eq appointmentId
@@ -88,7 +89,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                         doctorId = it[AppointmentEntity.doctor_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
                         examId = it[AppointmentEntity.exam_id]!!,
-                        confirmed = it[AppointmentEntity.confirmed]!!
+                        confirmed = it[AppointmentEntity.confirmed]!!,
+                        cancelledBy = it[AppointmentEntity.cancelled_by]!!
                     )
                 )
             }.firstOrNull()
@@ -138,7 +140,6 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 (AppointmentEntity.doctor_id eq appointmentsRequest.doctorId) and
                         (AppointmentEntity.date eq appointmentsRequest.date.toJavaLocalDate())
             }
-            .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
                 Appointment(
                     id = it[AppointmentEntity.id]!!,
@@ -147,7 +148,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     doctorId = it[AppointmentEntity.doctor_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
                     examId = it[AppointmentEntity.exam_id]!!,
-                    confirmed = it[AppointmentEntity.confirmed]!!
+                    confirmed = it[AppointmentEntity.confirmed]!!,
+                    cancelledBy = it[AppointmentEntity.cancelled_by]!!
                 )
             }
 
@@ -180,8 +182,39 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         return id as Int
     }
 
-    override fun cancelAppointment(appointmentId: Int): Int =
-        database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }
+    override fun cancelAppointment(appointmentId: Int, callerRole: Int): Int {
+        val appointment = database
+            .from(AppointmentEntity)
+            .select()
+            .where {
+                AppointmentEntity.id eq appointmentId
+            }
+            .map {
+                Appointment(
+                    id = it[AppointmentEntity.id]!!,
+                    date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
+                    time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
+                    doctorId = it[AppointmentEntity.doctor_id]!!,
+                    patientId = it[AppointmentEntity.patient_id]!!,
+                    examId = it[AppointmentEntity.exam_id]!!,
+                    confirmed = it[AppointmentEntity.confirmed]!!,
+                    cancelledBy = it[AppointmentEntity.cancelled_by]!!
+                )
+            }.firstOrNull()
+        return if (appointment == null || !appointment.confirmed && appointment.cancelledBy == callerRole) {
+            0
+        } else {
+            if (appointment.confirmed) {
+                database.update(AppointmentEntity) {
+                    set(it.confirmed, false)
+                    set(it.cancelled_by, callerRole)
+                    where { it.id eq appointmentId }
+                }
+            } else {
+                database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }
+            }
+        }
+    }
 
     override fun updateEmail(patientId: Int, email: String): Int =
         database.update(PatientEntity) {

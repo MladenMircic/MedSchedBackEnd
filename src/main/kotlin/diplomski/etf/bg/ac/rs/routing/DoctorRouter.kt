@@ -3,6 +3,7 @@ package diplomski.etf.bg.ac.rs.routing
 import diplomski.etf.bg.ac.rs.database.dao.DoctorDao
 import diplomski.etf.bg.ac.rs.utils.Constants
 import diplomski.etf.bg.ac.rs.utils.Role
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -22,6 +23,16 @@ fun Application.doctorRouter() {
                     call.respond(doctorDao.getAppointmentsForDoctor(
                         principal!!.payload.getClaim("id").asString().toInt()
                     ))
+                }
+
+                delete("/cancelAppointment/{appointmentId}") {
+                    val appointmentId = call.parameters["appointmentId"]?.toInt()!!
+                    val callerRole = call.principal<JWTPrincipal>()!!.payload.getClaim("role").asString().toInt()
+                    call.respond(
+                        if (doctorDao.cancelAppointment(appointmentId, callerRole) == 0)
+                            HttpStatusCode.InternalServerError
+                        else HttpStatusCode.OK
+                    )
                 }
             }
         }
