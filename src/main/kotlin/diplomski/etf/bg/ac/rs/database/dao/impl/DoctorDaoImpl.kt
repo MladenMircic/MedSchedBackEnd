@@ -5,6 +5,7 @@ import diplomski.etf.bg.ac.rs.database.entities.AppointmentEntity
 import diplomski.etf.bg.ac.rs.database.entities.PatientEntity
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForDoctorResponse
+import diplomski.etf.bg.ac.rs.utils.Role
 import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.datetime.toKotlinLocalTime
 import org.ktorm.database.Database
@@ -23,7 +24,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
-                AppointmentEntity.doctor_id eq doctorId
+                AppointmentEntity.doctor_id eq doctorId and ( AppointmentEntity.cancelled_by neq Role.DOCTOR.ordinal )
             }
             .map {
                 AppointmentForDoctorResponse(

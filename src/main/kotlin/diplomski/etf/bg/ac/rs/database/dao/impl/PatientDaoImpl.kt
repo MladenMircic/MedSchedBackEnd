@@ -6,6 +6,7 @@ import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForPatientResponse
+import diplomski.etf.bg.ac.rs.utils.Role
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toKotlinLocalDate
@@ -44,7 +45,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
-                AppointmentEntity.patient_id eq patientId
+                AppointmentEntity.patient_id eq patientId and (AppointmentEntity.cancelled_by neq Role.PATIENT.ordinal)
             }
             .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
@@ -138,7 +139,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select()
             .where {
                 (AppointmentEntity.doctor_id eq appointmentsRequest.doctorId) and
-                        (AppointmentEntity.date eq appointmentsRequest.date.toJavaLocalDate())
+                        (AppointmentEntity.date eq appointmentsRequest.date.toJavaLocalDate()) and
+                        (AppointmentEntity.confirmed eq true)
             }
             .map {
                 Appointment(
