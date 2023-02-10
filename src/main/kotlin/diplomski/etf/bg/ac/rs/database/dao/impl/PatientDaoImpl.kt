@@ -5,7 +5,7 @@ import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
-import diplomski.etf.bg.ac.rs.models.responses.AppointmentWithDoctorResponse
+import diplomski.etf.bg.ac.rs.models.responses.AppointmentForPatientResponse
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalTime
 import kotlinx.datetime.toKotlinLocalDate
@@ -33,7 +33,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }.firstOrNull()
 
-    override fun getAppointmentsWithDoctorForPatient(patientId: Int): List<AppointmentWithDoctorResponse> =
+    override fun getAppointmentsForPatient(patientId: Int): List<AppointmentForPatientResponse> =
         database
             .from(AppointmentEntity)
             .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
@@ -48,7 +48,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             }
             .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
-                AppointmentWithDoctorResponse(
+                AppointmentForPatientResponse(
                     doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
                     doctorSpecializationId = it[DoctorEntity.specialization_id]!!,
                     appointment = Appointment(
@@ -63,7 +63,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }
 
-    override fun getAppointmentWithDoctorById(appointmentId: Int): AppointmentWithDoctorResponse? =
+    override fun getAppointmentWithDoctorById(appointmentId: Int): AppointmentForPatientResponse? =
         database
             .from(AppointmentEntity)
             .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
@@ -78,7 +78,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             }
             .orderBy(AppointmentEntity.date.asc(), AppointmentEntity.time.asc())
             .map {
-                AppointmentWithDoctorResponse(
+                AppointmentForPatientResponse(
                     doctorName = "${it[DoctorEntity.first_name]} ${it[DoctorEntity.last_name]}",
                     doctorSpecializationId = it[DoctorEntity.specialization_id]!!,
                     appointment = Appointment(

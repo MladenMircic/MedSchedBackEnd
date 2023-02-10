@@ -4,8 +4,7 @@ import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AppointmentWithDoctorResponse(
-    val doctorName: String,
-    val doctorSpecializationId: Int,
+data class AppointmentForDoctorResponse(
+    val patientName: String,
     val appointment: Appointment
 )

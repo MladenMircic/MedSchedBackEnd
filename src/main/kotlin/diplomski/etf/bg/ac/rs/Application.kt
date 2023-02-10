@@ -4,6 +4,7 @@ import diplomski.etf.bg.ac.rs.plugins.configureDependencyInjection
 import diplomski.etf.bg.ac.rs.plugins.configureRouting
 import diplomski.etf.bg.ac.rs.plugins.configureSecurity
 import diplomski.etf.bg.ac.rs.plugins.configureSerialization
+import diplomski.etf.bg.ac.rs.security.services.impl.BCryptService
 import diplomski.etf.bg.ac.rs.security.token.TokenConfig
 import io.ktor.server.application.*
 import io.ktor.server.netty.*

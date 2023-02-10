@@ -6,7 +6,6 @@ import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.PasswordChangeRequest
-import diplomski.etf.bg.ac.rs.models.responses.AppointmentWithDoctorResponse
 import diplomski.etf.bg.ac.rs.models.responses.PasswordChangeResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.utils.Constants
@@ -28,9 +27,9 @@ fun Application.patientRouter() {
     routing {
         route("/${Constants.PATIENT_ENDPOINTS}") {
             authenticate(Role.PATIENT.name) {
-                get("/allScheduled") {
+                get("/allAppointmentsForPatient") {
                     val principal = call.principal<JWTPrincipal>()
-                    call.respond(patientDao.getAppointmentsWithDoctorForPatient(
+                    call.respond(patientDao.getAppointmentsForPatient(
                         principal!!.payload.getClaim("id").asString().toInt()
                     ))
                 }
