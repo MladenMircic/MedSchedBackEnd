@@ -48,7 +48,8 @@ class UserDaoImpl(private val database: Database): UserDao {
                             password = it[DoctorEntity.password]!!,
                             phone = it[DoctorEntity.phone]!!,
                             categoryId = it[DoctorEntity.category_id]!!,
-                            specializationId = it[DoctorEntity.specialization_id]!!
+                            specializationId = it[DoctorEntity.specialization_id]!!,
+                            clinicId = it[DoctorEntity.clinic_id]!!
                         )
                     }.firstOrNull()
             }

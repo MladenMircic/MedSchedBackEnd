@@ -28,6 +28,7 @@ fun Application.configureSecurity(config: TokenConfig) {
         }
         jwtForRole(realm, config, Role.DOCTOR)
         jwtForRole(realm, config, Role.PATIENT)
+        jwtForRole(realm, config, Role.CLINIC)
     }
 }
 

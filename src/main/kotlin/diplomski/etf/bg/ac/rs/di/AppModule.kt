@@ -1,9 +1,11 @@
 package diplomski.etf.bg.ac.rs.di
 
 import diplomski.etf.bg.ac.rs.database.DatabaseConnection
+import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
 import diplomski.etf.bg.ac.rs.database.dao.DoctorDao
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.database.dao.UserDao
+import diplomski.etf.bg.ac.rs.database.dao.impl.ClinicDaoImpl
 import diplomski.etf.bg.ac.rs.database.dao.impl.DoctorDaoImpl
 import diplomski.etf.bg.ac.rs.database.dao.impl.PatientDaoImpl
 import diplomski.etf.bg.ac.rs.database.dao.impl.UserDaoImpl
@@ -20,6 +22,7 @@ val appModule = module {
     single<UserDao> { UserDaoImpl(get()) }
     single<PatientDao> { PatientDaoImpl(get()) }
     single<DoctorDao> { DoctorDaoImpl(get()) }
+    single<ClinicDao> { ClinicDaoImpl(get()) }
     single<HashingService> { BCryptService() }
     single<TokenService> { JwtTokenService() }
 }
