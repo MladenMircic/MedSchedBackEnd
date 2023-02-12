@@ -4,9 +4,11 @@ import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
 import diplomski.etf.bg.ac.rs.database.entities.CategoryEntity
 import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
 import diplomski.etf.bg.ac.rs.database.entities.DoctorWorkTimeEntity
+import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
 import diplomski.etf.bg.ac.rs.models.WorkDay
 import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
+import diplomski.etf.bg.ac.rs.models.database_models.Service
 import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
 import kotlinx.datetime.toJavaLocalTime
 import org.ktorm.database.Database
@@ -39,6 +41,21 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                 Category(
                     id = it[CategoryEntity.id]!!,
                     name = it[CategoryEntity.name]!!
+                )
+            }
+
+    override fun getAllServicesForCategory(categoryId: Int): List<Service> =
+        database
+            .from(ServiceEntity)
+            .select()
+            .where {
+                ServiceEntity.category_id eq categoryId
+            }
+            .map {
+                Service(
+                    id = it[ServiceEntity.id]!!,
+                    name = it[ServiceEntity.name]!!,
+                    categoryId = categoryId
                 )
             }
 

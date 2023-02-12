@@ -30,6 +30,11 @@ fun Application.clinicRouter() {
                     call.respond(clinicDao.getAllCategories())
                 }
 
+                get("/allServicesForCategory") {
+                    val categoryId = call.request.queryParameters["categoryId"]?.toInt() ?: -1
+                    call.respond(clinicDao.getAllServicesForCategory(categoryId))
+                }
+
                 post("/registerDoctor") {
                     val doctorRegisterRequest = call.receive<DoctorRegisterRequest>()
                     val principal = call.principal<JWTPrincipal>()
