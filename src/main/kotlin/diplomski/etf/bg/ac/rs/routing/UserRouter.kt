@@ -19,11 +19,9 @@ import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 
 fun Application.userRouter(config: TokenConfig) {
-
     val userDao: UserDao by inject()
     val hashingService: HashingService by inject()
     val tokenService: TokenService by inject()
-
     routing {
         route("/${Constants.AUTHENTICATION_ENDPOINTS}") {
             post("/login") {
