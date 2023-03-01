@@ -109,12 +109,11 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.name, category.name)
         }
 
-    override fun getDoctors(category: String?): List<DoctorForPatient> {
+    override fun getDoctors(categoryId: Int?): List<DoctorForPatient> {
         var query = database.from(DoctorEntity).select()
-        val categoryId = category?.toInt()
         if (categoryId != null && categoryId != 0) {
             query = query.where {
-                DoctorEntity.category_id eq category.toInt()
+                DoctorEntity.category_id eq categoryId.toInt()
             }
         }
         return query.map {
@@ -130,7 +129,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         }
     }
 
-    override fun getClinics(category: String?): List<ClinicForPatient> {
+    override fun getClinics(categoryId: Int?): List<ClinicForPatient> {
         val clinicList = database
             .from(ClinicEntity)
             .select()
@@ -145,24 +144,26 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }
         for (clinic in clinicList) {
-            clinic.doctors = database
+            var doctorsQuery = database
                 .from(DoctorClinicEntity)
                 .innerJoin(DoctorEntity, on = DoctorClinicEntity.doctor_id eq DoctorEntity.id)
                 .select()
-                .where {
-                    DoctorClinicEntity.clinic_id eq clinic.id
+            if (categoryId != null && categoryId != 0) {
+                doctorsQuery = doctorsQuery.where {
+                    DoctorEntity.category_id eq categoryId
                 }
-                .map {
-                    DoctorForPatient(
-                        id = it[DoctorEntity.id]!!,
-                        email = it[DoctorEntity.email]!!,
-                        firstName = it[DoctorEntity.first_name]!!,
-                        lastName = it[DoctorEntity.last_name]!!,
-                        phone = it[DoctorEntity.phone]!!,
-                        serviceId = it[DoctorEntity.category_id]!!,
-                        specializationId = it[DoctorEntity.specialization_id]!!
-                    )
-                }
+            }
+            clinic.doctors = doctorsQuery.map {
+                DoctorForPatient(
+                    id = it[DoctorEntity.id]!!,
+                    email = it[DoctorEntity.email]!!,
+                    firstName = it[DoctorEntity.first_name]!!,
+                    lastName = it[DoctorEntity.last_name]!!,
+                    phone = it[DoctorEntity.phone]!!,
+                    serviceId = it[DoctorEntity.category_id]!!,
+                    specializationId = it[DoctorEntity.specialization_id]!!
+                )
+            }
         }
         return clinicList
     }
