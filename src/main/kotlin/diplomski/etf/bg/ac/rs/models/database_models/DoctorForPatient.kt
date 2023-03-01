@@ -3,7 +3,7 @@ package diplomski.etf.bg.ac.rs.models.database_models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DoctorsForPatient(
+data class DoctorForPatient(
     val id: Int,
     val email: String,
     val firstName: String,

@@ -42,6 +42,10 @@ fun Application.patientRouter() {
                     call.respond(patientDao.getDoctors(call.request.queryParameters["category"]))
                 }
 
+                get("/getClinics") {
+                    call.respond(patientDao.getClinics(null))
+                }
+
                 get("/getServicesForDoctor/{doctorId}") {
                     call.respond(patientDao.getAllServicesForDoctor(call.parameters["doctorId"]?.toInt()!!))
                 }
