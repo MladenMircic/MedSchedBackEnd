@@ -111,7 +111,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
 
     override fun getDoctors(category: String?): List<DoctorForPatient> {
         var query = database.from(DoctorEntity).select()
-        if (category != null && category != "") {
+        val categoryId = category?.toInt()
+        if (categoryId != null && categoryId != 0) {
             query = query.where {
                 DoctorEntity.category_id eq category.toInt()
             }
