@@ -8,6 +8,7 @@ import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.PasswordChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.PasswordChangeResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
+import diplomski.etf.bg.ac.rs.security.services.OneSignalService
 import diplomski.etf.bg.ac.rs.utils.Constants
 import diplomski.etf.bg.ac.rs.utils.Role
 import io.ktor.http.*
@@ -23,6 +24,7 @@ fun Application.patientRouter() {
 
     val patientDao: PatientDao by inject()
     val hashingService: HashingService by inject()
+    val oneSignalService: OneSignalService by inject()
 
     routing {
         route("/${Constants.PATIENT_ENDPOINTS}") {

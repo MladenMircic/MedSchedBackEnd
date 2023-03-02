@@ -96,23 +96,23 @@ class UserDaoImpl(private val database: Database): UserDao {
     override fun insertUser(registerRequest: RegisterRequest): Int =
         when (registerRequest.role) {
             0 -> {
-                database.insert(DoctorEntity) {
+                database.insertAndGenerateKey(DoctorEntity) {
                     set(it.email, registerRequest.email)
                     set(it.first_name, registerRequest.firstName)
                     set(it.last_name, registerRequest.lastName)
                     set(it.password, registerRequest.password)
                     set(it.phone, registerRequest.phone)
-                }
+                } as Int
             }
             1 -> {
-                database.insert(PatientEntity) {
+                database.insertAndGenerateKey(PatientEntity) {
                     set(it.email, registerRequest.email)
                     set(it.first_name, registerRequest.firstName)
                     set(it.last_name, registerRequest.lastName)
                     set(it.password, registerRequest.password)
                     set(it.phone, registerRequest.phone)
                     set(it.ssn, registerRequest.ssn)
-                }
+                } as Int
             }
             2 -> {
                 0

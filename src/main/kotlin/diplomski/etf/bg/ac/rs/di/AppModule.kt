@@ -1,5 +1,6 @@
 package diplomski.etf.bg.ac.rs.di
 
+import com.typesafe.config.ConfigFactory
 import diplomski.etf.bg.ac.rs.database.DatabaseConnection
 import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
 import diplomski.etf.bg.ac.rs.database.dao.DoctorDao
@@ -10,12 +11,16 @@ import diplomski.etf.bg.ac.rs.database.dao.impl.DoctorDaoImpl
 import diplomski.etf.bg.ac.rs.database.dao.impl.PatientDaoImpl
 import diplomski.etf.bg.ac.rs.database.dao.impl.UserDaoImpl
 import diplomski.etf.bg.ac.rs.security.services.HashingService
+import diplomski.etf.bg.ac.rs.security.services.OneSignalService
 import diplomski.etf.bg.ac.rs.security.services.TokenService
 import diplomski.etf.bg.ac.rs.security.services.impl.BCryptService
 import diplomski.etf.bg.ac.rs.security.services.impl.JwtTokenService
-import io.ktor.server.application.*
+import diplomski.etf.bg.ac.rs.security.services.impl.OneSignalServiceImpl
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import org.koin.dsl.module
-import org.ktorm.database.Database
 
 val appModule = module {
     single { DatabaseConnection.database }
@@ -25,4 +30,19 @@ val appModule = module {
     single<ClinicDao> { ClinicDaoImpl(get()) }
     single<HashingService> { BCryptService() }
     single<TokenService> { JwtTokenService() }
+    // Ktor HTTP client injection rule
+    single {
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+    }
+    single<OneSignalService> {
+        val config = ConfigFactory.load()
+        OneSignalServiceImpl(
+            get(),
+            config.getString("onesignal.api_key")
+        )
+    }
 }
