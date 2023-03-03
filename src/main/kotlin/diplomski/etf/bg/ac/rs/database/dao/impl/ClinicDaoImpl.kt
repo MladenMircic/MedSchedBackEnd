@@ -60,8 +60,9 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             }
 
     override fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: String): Boolean {
-        val doctorId = database.insertAndGenerateKey(DoctorEntity) {
-            set(it.id, UUID.randomUUID().toString())
+        val doctorId: String = UUID.randomUUID().toString()
+        database.insert(DoctorEntity) {
+            set(it.id, doctorId)
             set(it.email, doctorRegisterRequest.email)
             set(it.first_name, doctorRegisterRequest.firstName)
             set(it.last_name, doctorRegisterRequest.lastName)
@@ -69,7 +70,7 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             set(it.phone, doctorRegisterRequest.phone)
             set(it.category_id, doctorRegisterRequest.categoryId)
             set(it.specialization_id, doctorRegisterRequest.specializationId)
-        } as String
+        }
         return registerDoctorWorkDays(doctorId, clinicId, doctorRegisterRequest.workDays)
     }
 
