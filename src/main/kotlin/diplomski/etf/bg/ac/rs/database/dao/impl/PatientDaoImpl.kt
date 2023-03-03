@@ -12,7 +12,7 @@ import org.ktorm.database.Database
 import org.ktorm.dsl.*
 
 class PatientDaoImpl(private val database: Database): PatientDao {
-    override fun getPatientById(patientId: Int): Patient? =
+    override fun getPatientById(patientId: String): Patient? =
         database
             .from(PatientEntity)
             .select()
@@ -31,7 +31,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }.firstOrNull()
 
-    override fun getAppointmentsForPatient(patientId: Int): List<AppointmentForPatientResponse> =
+    override fun getAppointmentsForPatient(patientId: String): List<AppointmentForPatientResponse> =
         database
             .from(AppointmentEntity)
             .innerJoin(DoctorEntity, on = AppointmentEntity.doctor_id eq DoctorEntity.id)
@@ -195,7 +195,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
     }
 
 
-    override fun getAllServicesForDoctor(doctorId: Int): List<Service> =
+    override fun getAllServicesForDoctor(doctorId: String): List<Service> =
         database
             .from(DoctorEntity)
             .innerJoin(ServiceEntity, on = DoctorEntity.category_id eq ServiceEntity.category_id)
@@ -259,19 +259,19 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         }
     }
 
-    override fun updateEmail(patientId: Int, email: String): Int =
+    override fun updateEmail(patientId: String, email: String): Int =
         database.update(PatientEntity) {
             set(it.email, email)
             where { it.id eq patientId }
         }
 
-    override fun updatePassword(patientId: Int, newPassword: String): Int =
+    override fun updatePassword(patientId: String, newPassword: String): Int =
         database.update(PatientEntity) {
             set(it.password, newPassword)
             where { it.id eq patientId }
         }
 
-    override fun updateInfo(patientId: Int, infoChangeRequest: InfoChangeRequest): Int =
+    override fun updateInfo(patientId: String, infoChangeRequest: InfoChangeRequest): Int =
         database.update(PatientEntity) {
             set(it.first_name, infoChangeRequest.firstName)
             set(it.last_name, infoChangeRequest.lastName)

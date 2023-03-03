@@ -12,6 +12,7 @@ import diplomski.etf.bg.ac.rs.models.requests.RegisterRequest
 import kotlinx.datetime.toKotlinLocalTime
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
+import java.util.*
 
 class UserDaoImpl(private val database: Database): UserDao {
 
@@ -48,8 +49,7 @@ class UserDaoImpl(private val database: Database): UserDao {
                             password = it[DoctorEntity.password]!!,
                             phone = it[DoctorEntity.phone]!!,
                             categoryId = it[DoctorEntity.category_id]!!,
-                            specializationId = it[DoctorEntity.specialization_id]!!,
-                            clinicId = it[DoctorEntity.clinic_id]!!
+                            specializationId = it[DoctorEntity.specialization_id]!!
                         )
                     }.firstOrNull()
             }
@@ -96,23 +96,24 @@ class UserDaoImpl(private val database: Database): UserDao {
     override fun insertUser(registerRequest: RegisterRequest): Int =
         when (registerRequest.role) {
             0 -> {
-                database.insertAndGenerateKey(DoctorEntity) {
+                database.insert(DoctorEntity) {
+                    set(it.id, UUID.randomUUID().toString())
                     set(it.email, registerRequest.email)
                     set(it.first_name, registerRequest.firstName)
                     set(it.last_name, registerRequest.lastName)
                     set(it.password, registerRequest.password)
                     set(it.phone, registerRequest.phone)
-                } as Int
+                }
             }
             1 -> {
-                database.insertAndGenerateKey(PatientEntity) {
+                database.insert(PatientEntity) {
                     set(it.email, registerRequest.email)
                     set(it.first_name, registerRequest.firstName)
                     set(it.last_name, registerRequest.lastName)
                     set(it.password, registerRequest.password)
                     set(it.phone, registerRequest.phone)
                     set(it.ssn, registerRequest.ssn)
-                } as Int
+                }
             }
             2 -> {
                 0

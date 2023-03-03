@@ -4,6 +4,6 @@ import diplomski.etf.bg.ac.rs.models.responses.AppointmentForDoctorResponse
 
 interface DoctorDao {
 
-    fun getAppointmentsForDoctor(doctorId: Int): List<AppointmentForDoctorResponse>
+    fun getAppointmentsForDoctor(doctorId: String): List<AppointmentForDoctorResponse>
     fun cancelAppointment(appointmentId: Int, callerRole: Int): Int
 }

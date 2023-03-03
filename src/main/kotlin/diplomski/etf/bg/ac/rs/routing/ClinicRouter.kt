@@ -41,7 +41,7 @@ fun Application.clinicRouter() {
                     doctorRegisterRequest.password = hashingService.generateHash(doctorRegisterRequest.password)
                     val operationSuccess = clinicDao.registerDoctor(
                         doctorRegisterRequest,
-                        principal!!.payload.getClaim("id").asString().toInt()
+                        principal!!.payload.getClaim("id").asString()
                     )
                     call.respond(
                         if (!operationSuccess)
@@ -51,7 +51,7 @@ fun Application.clinicRouter() {
                 }
 
                 delete("/deleteDoctor") {
-                    val doctorId = call.request.queryParameters["doctorId"]?.toInt() ?: -1
+                    val doctorId = call.request.queryParameters["doctorId"] ?: ""
                     call.respond(
                         if (clinicDao.deleteDoctor(doctorId) == 0)
                             HttpStatusCode.InternalServerError

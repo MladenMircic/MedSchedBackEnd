@@ -9,8 +9,8 @@ data class Appointment(
     val id: Int,
     val date: LocalDate,
     val time: LocalTime,
-    val doctorId: Int,
-    val patientId: Int,
+    val doctorId: String,
+    val patientId: String,
     val examId: Int,
     val confirmed: Boolean,
     val cancelledBy: Int

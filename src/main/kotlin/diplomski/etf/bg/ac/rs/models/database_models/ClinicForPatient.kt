@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ClinicForPatient(
-    val id: Int,
+    val id: String,
     val email: String,
     val name: String,
     val openingTime: LocalTime,

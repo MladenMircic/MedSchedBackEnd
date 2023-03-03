@@ -1,6 +1,8 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
+import diplomski.etf.bg.ac.rs.models.Notification
+import diplomski.etf.bg.ac.rs.models.NotificationMessage
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
@@ -32,7 +34,7 @@ fun Application.patientRouter() {
                 get("/allAppointmentsForPatient") {
                     val principal = call.principal<JWTPrincipal>()
                     call.respond(patientDao.getAppointmentsForPatient(
-                        principal!!.payload.getClaim("id").asString().toInt()
+                        principal!!.payload.getClaim("id").asString()
                     ))
                 }
 
@@ -49,7 +51,7 @@ fun Application.patientRouter() {
                 }
 
                 get("/getServicesForDoctor/{doctorId}") {
-                    call.respond(patientDao.getAllServicesForDoctor(call.parameters["doctorId"]?.toInt()!!))
+                    call.respond(patientDao.getAllServicesForDoctor(call.parameters["doctorId"]!!))
                 }
 
                 post("/scheduledAppointmentsForDoctor") {
@@ -80,7 +82,7 @@ fun Application.patientRouter() {
                 }
 
                 post("/updateEmail") {
-                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString().toInt()
+                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString()
                     val emailChangeRequest = call.receive<EmailChangeRequest>()
                     call.respond(
                         if (patientDao.updateEmail(
@@ -93,7 +95,7 @@ fun Application.patientRouter() {
                 }
 
                 post("/updatePassword") {
-                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString().toInt()
+                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString()
                     val passwordChangeRequest = call.receive<PasswordChangeRequest>()
                     val patient = patientDao.getPatientById(patientId)
                     if (patient == null) {
@@ -123,7 +125,7 @@ fun Application.patientRouter() {
                 }
 
                 post("/updateInfo") {
-                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString().toInt()
+                    val patientId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asString()
                     val infoChangeRequest = call.receive<InfoChangeRequest>()
                     call.respond(
                         if (patientDao.updateInfo(

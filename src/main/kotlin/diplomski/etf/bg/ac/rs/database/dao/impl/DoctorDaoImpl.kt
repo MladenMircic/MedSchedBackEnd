@@ -13,7 +13,7 @@ import org.ktorm.dsl.*
 
 class DoctorDaoImpl(private val database: Database): DoctorDao {
 
-    override fun getAppointmentsForDoctor(doctorId: Int): List<AppointmentForDoctorResponse> =
+    override fun getAppointmentsForDoctor(doctorId: String): List<AppointmentForDoctorResponse> =
         database
             .from(AppointmentEntity)
             .innerJoin(PatientEntity, on = AppointmentEntity.patient_id eq PatientEntity.id)

@@ -13,6 +13,7 @@ import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
 import kotlinx.datetime.toJavaLocalTime
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
+import java.util.*
 
 class ClinicDaoImpl(private val database: Database): ClinicDao {
     override fun getAllDoctors(): List<Doctor> =
@@ -28,8 +29,7 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                     password = "",
                     phone = it[DoctorEntity.last_name]!!,
                     categoryId = it[DoctorEntity.category_id]!!,
-                    specializationId = it[DoctorEntity.specialization_id]!!,
-                    clinicId = it[DoctorEntity.clinic_id]!!
+                    specializationId = it[DoctorEntity.specialization_id]!!
                 )
             }
 
@@ -59,9 +59,9 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                 )
             }
 
-    override fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: Int): Boolean {
+    override fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: String): Boolean {
         val doctorId = database.insertAndGenerateKey(DoctorEntity) {
-            set(it.id, 0)
+            set(it.id, UUID.randomUUID().toString())
             set(it.email, doctorRegisterRequest.email)
             set(it.first_name, doctorRegisterRequest.firstName)
             set(it.last_name, doctorRegisterRequest.lastName)
@@ -69,18 +69,18 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             set(it.phone, doctorRegisterRequest.phone)
             set(it.category_id, doctorRegisterRequest.categoryId)
             set(it.specialization_id, doctorRegisterRequest.specializationId)
-            set(it.clinic_id, clinicId)
-        } as Int
+        } as String
         return registerDoctorWorkDays(doctorId, clinicId, doctorRegisterRequest.workDays)
     }
 
-    override fun deleteDoctor(doctorId: Int): Int {
+    override fun deleteDoctor(doctorId: String): Int {
+        if (doctorId == "") return 0
         val doctorDeleteResult = database.delete(DoctorEntity) { it.id eq doctorId }
         val workTimeDeleteResult = database.delete(DoctorWorkTimeEntity) { it.doctor_id eq doctorId }
         return doctorDeleteResult + workTimeDeleteResult
     }
 
-    private fun registerDoctorWorkDays(doctorId: Int, clinicId: Int, workDays: List<WorkDay>): Boolean {
+    private fun registerDoctorWorkDays(doctorId: String, clinicId: String, workDays: List<WorkDay>): Boolean {
         return database.batchInsert(DoctorWorkTimeEntity) {
             for (workDay in workDays) {
                 for (workHour in workDay.workHours) {

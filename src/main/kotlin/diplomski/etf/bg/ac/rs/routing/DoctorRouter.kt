@@ -21,7 +21,7 @@ fun Application.doctorRouter() {
                 get("/allAppointmentsForDoctor") {
                     val principal = call.principal<JWTPrincipal>()
                     call.respond(doctorDao.getAppointmentsForDoctor(
-                        principal!!.payload.getClaim("id").asString().toInt()
+                        principal!!.payload.getClaim("id").asString()
                     ))
                 }
 

@@ -9,6 +9,6 @@ interface ClinicDao {
     fun getAllDoctors(): List<Doctor>
     fun getAllCategories(): List<Category>
     fun getAllServicesForCategory(categoryId: Int): List<Service>
-    fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: Int): Boolean
-    fun deleteDoctor(doctorId: Int): Int
+    fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: String): Boolean
+    fun deleteDoctor(doctorId: String): Int
 }

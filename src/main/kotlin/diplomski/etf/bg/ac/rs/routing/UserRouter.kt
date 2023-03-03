@@ -78,11 +78,10 @@ fun Application.userRouter(config: TokenConfig) {
                 }
                 else {
                     registerRequest.password = hashingService.generateHash(registerRequest.password)
-                    val resultId = userDao.insertUser(registerRequest)
-                    if (resultId > 0) {
+                    val result = userDao.insertUser(registerRequest)
+                    if (result > 0) {
                         call.respond(
                             RegisterResponse(
-                                id = resultId,
                                 success = true
                             )
                         )

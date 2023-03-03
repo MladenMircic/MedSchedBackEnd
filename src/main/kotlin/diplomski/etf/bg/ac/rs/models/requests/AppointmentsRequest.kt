@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AppointmentsRequest(
-    val doctorId: Int,
+    val doctorId: String,
     val date: LocalDate
 )

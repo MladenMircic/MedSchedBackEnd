@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("PATIENT")
 data class Patient(
-    override val id: Int,
+    override val id: String,
     override val email: String,
     val firstName: String,
     val lastName: String,
