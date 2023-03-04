@@ -2,6 +2,7 @@ package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.Notification
+import diplomski.etf.bg.ac.rs.models.NotificationData
 import diplomski.etf.bg.ac.rs.models.NotificationMessage
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
@@ -20,6 +21,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 
 fun Application.patientRouter() {
@@ -75,6 +77,9 @@ fun Application.patientRouter() {
                                 contents = NotificationMessage(
                                     en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
                                     sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
+                                ),
+                                data = NotificationData(
+                                    doctorName = appointmentWithDoctor.doctorName
                                 ),
                                 appId = OneSignalService.ONESIGNAL_APP_ID
                             )

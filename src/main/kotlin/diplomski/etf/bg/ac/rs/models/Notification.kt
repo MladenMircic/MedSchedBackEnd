@@ -16,4 +16,6 @@ data class Notification(
     val smallIcon: String = Constants.NOTIFICATION_ICON,
     @SerialName("app_id")
     val appId: String,
+    @SerialName("data")
+    val data: NotificationData
 )
