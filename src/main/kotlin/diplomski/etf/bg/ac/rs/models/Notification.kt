@@ -17,5 +17,5 @@ data class Notification(
     @SerialName("app_id")
     val appId: String,
     @SerialName("data")
-    val data: NotificationData
+    val data: NotificationData = NotificationData()
 )

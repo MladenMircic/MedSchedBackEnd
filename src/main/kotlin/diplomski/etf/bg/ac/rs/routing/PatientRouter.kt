@@ -45,7 +45,10 @@ fun Application.patientRouter() {
                 }
 
                 get("/getDoctors") {
-                    call.respond(patientDao.getDoctors(call.request.queryParameters["category"]?.toInt()))
+                    val categoryIds: List<Int> = call.request.queryParameters["categories"]!!
+                        .split(",")
+                        .map { it.toInt() }
+                    call.respond(patientDao.getDoctors(categoryIds))
                 }
 
                 get("/getClinics") {
@@ -77,9 +80,6 @@ fun Application.patientRouter() {
                                 contents = NotificationMessage(
                                     en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
                                     sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
-                                ),
-                                data = NotificationData(
-                                    doctorName = appointmentWithDoctor.doctorName
                                 ),
                                 appId = OneSignalService.ONESIGNAL_APP_ID
                             )

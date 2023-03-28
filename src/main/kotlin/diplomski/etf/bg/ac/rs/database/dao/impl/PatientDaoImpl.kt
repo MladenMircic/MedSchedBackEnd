@@ -109,11 +109,11 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.name, category.name)
         }
 
-    override fun getDoctors(categoryId: Int?): List<DoctorForPatient> {
+    override fun getDoctors(categoryIds: List<Int>): List<DoctorForPatient> {
         var query = database.from(DoctorEntity).select()
-        if (categoryId != null && categoryId != 0) {
+        if (!categoryIds.contains(0)) {
             query = query.where {
-                DoctorEntity.category_id eq categoryId.toInt()
+                DoctorEntity.category_id inList categoryIds
             }
         }
         return query.map {

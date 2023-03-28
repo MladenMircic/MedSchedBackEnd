@@ -1,8 +1,10 @@
 package diplomski.etf.bg.ac.rs.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class NotificationData(
-    val doctorName: String
+    @SerialName("doctor_name")
+    val doctorName: String = ""
 )
