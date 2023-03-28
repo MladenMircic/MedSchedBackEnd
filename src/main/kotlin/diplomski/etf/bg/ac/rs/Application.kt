@@ -22,7 +22,7 @@ fun main(args: Array<String>): Unit =
 
 @Suppress("unused")
 fun Application.module() {
-    println(UUID.randomUUID().toString())
+    println("".split(" ").size)
     if (Files.notExists(Paths.get("./images"))) {
         Files.createDirectory(Paths.get("./images"))
     }

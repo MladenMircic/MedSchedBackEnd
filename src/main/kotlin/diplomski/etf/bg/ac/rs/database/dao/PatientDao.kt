@@ -14,7 +14,7 @@ interface PatientDao {
     fun getAppointmentWithDoctorById(appointmentId: Int): AppointmentForPatientResponse?
     fun getAllCategories(): List<Category>
     fun insertService(category: Category): Int
-    fun getDoctors(categoryIds: List<Int>): List<DoctorForPatient>
+    fun getDoctors(doctorName: String, categoryIds: List<Int>): List<DoctorForPatient>
     fun getClinics(categoryId: Int?): List<ClinicForPatient>
     fun getAllAppointmentsForDoctorAtDate(appointmentsRequest: AppointmentsRequest): List<LocalTime>
     fun getAllServicesForDoctor(doctorId: String): List<Service>

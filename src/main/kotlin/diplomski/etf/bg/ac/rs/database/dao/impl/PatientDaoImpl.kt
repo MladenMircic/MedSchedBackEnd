@@ -10,6 +10,8 @@ import diplomski.etf.bg.ac.rs.utils.Role
 import kotlinx.datetime.*
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
+import org.ktorm.schema.ColumnDeclaring
+import javax.management.Query.and
 
 class PatientDaoImpl(private val database: Database): PatientDao {
     override fun getPatientById(patientId: String): Patient? =
@@ -109,12 +111,50 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             set(it.name, category.name)
         }
 
-    override fun getDoctors(categoryIds: List<Int>): List<DoctorForPatient> {
+    override fun getDoctors(doctorName: String, categoryIds: List<Int>): List<DoctorForPatient> {
+        val doctorNameSplit: List<String> = doctorName.split(" ")
         var query = database.from(DoctorEntity).select()
+        var queryCondition: ColumnDeclaring<Boolean>? = null
         if (!categoryIds.contains(0)) {
-            query = query.where {
-                DoctorEntity.category_id inList categoryIds
+            queryCondition = DoctorEntity.category_id inList categoryIds
+        }
+        if (doctorName.isNotEmpty()) {
+            if (doctorNameSplit.size < 2) {
+                queryCondition = if (queryCondition == null) {
+                    DoctorEntity.first_name like "%${doctorNameSplit[0]}%" or (
+                            DoctorEntity.last_name like "%${doctorNameSplit[0]}%"
+                            )
+                } else {
+                    queryCondition and (
+                            DoctorEntity.first_name like "%${doctorNameSplit[0]}%" or (
+                                    DoctorEntity.last_name like "%${doctorNameSplit[0]}%"
+                                    )
+                            )
+                }
+            } else {
+                queryCondition = if (queryCondition == null) {
+                    DoctorEntity.first_name like "%${doctorNameSplit[0]}%" and (
+                            DoctorEntity.last_name like "%${doctorNameSplit[1]}%"
+                            ) or (
+                            DoctorEntity.first_name like "%${doctorNameSplit[1]}%" and (
+                                    DoctorEntity.last_name like "%${doctorNameSplit[0]}%"
+                                    )
+                            )
+                } else {
+                    queryCondition and (
+                            DoctorEntity.first_name like "%${doctorNameSplit[0]}%" and (
+                                    DoctorEntity.last_name like "%${doctorNameSplit[1]}%"
+                                    ) or (
+                                    DoctorEntity.first_name like "%${doctorNameSplit[1]}%" and (
+                                            DoctorEntity.last_name like "%${doctorNameSplit[0]}%"
+                                            )
+                                    )
+                            )
+                }
             }
+        }
+        if (queryCondition != null) {
+            query = query.where { queryCondition }
         }
         return query.map {
             DoctorForPatient(

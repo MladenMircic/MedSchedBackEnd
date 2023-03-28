@@ -45,10 +45,11 @@ fun Application.patientRouter() {
                 }
 
                 get("/getDoctors") {
+                    val doctorName = call.request.queryParameters["doctor_name"]!!
                     val categoryIds: List<Int> = call.request.queryParameters["categories"]!!
                         .split(",")
                         .map { it.toInt() }
-                    call.respond(patientDao.getDoctors(categoryIds))
+                    call.respond(patientDao.getDoctors(doctorName, categoryIds))
                 }
 
                 get("/getClinics") {
