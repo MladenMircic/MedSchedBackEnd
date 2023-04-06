@@ -2,10 +2,9 @@ package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.Notification
-import diplomski.etf.bg.ac.rs.models.NotificationData
 import diplomski.etf.bg.ac.rs.models.NotificationMessage
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
-import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.requests.AvailableTimesRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.PasswordChangeRequest
@@ -21,7 +20,6 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 
 fun Application.patientRouter() {
@@ -60,9 +58,9 @@ fun Application.patientRouter() {
                     call.respond(patientDao.getAllServicesForDoctor(call.parameters["doctorId"]!!))
                 }
 
-                post("/scheduledAppointmentsForDoctor") {
-                    val appointmentsRequest = call.receive<AppointmentsRequest>()
-                    call.respond(patientDao.getAllAppointmentsForDoctorAtDate(appointmentsRequest))
+                post("/scheduledAppointmentsForDoctors") {
+                    val availableTimesRequest = call.receive<AvailableTimesRequest>()
+                    call.respond(patientDao.getAllAppointmentsForDoctorAtDate(availableTimesRequest))
                 }
 
                 post("/scheduleAppointment") {

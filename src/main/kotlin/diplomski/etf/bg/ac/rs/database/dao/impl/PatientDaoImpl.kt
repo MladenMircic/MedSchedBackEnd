@@ -3,7 +3,7 @@ package diplomski.etf.bg.ac.rs.database.dao.impl
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.database_models.*
-import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.requests.AvailableTimesRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForPatientResponse
 import diplomski.etf.bg.ac.rs.utils.Role
@@ -11,7 +11,7 @@ import kotlinx.datetime.*
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
 import org.ktorm.schema.ColumnDeclaring
-import javax.management.Query.and
+import java.time.DayOfWeek
 
 class PatientDaoImpl(private val database: Database): PatientDao {
     override fun getPatientById(patientId: String): Patient? =
@@ -208,31 +208,21 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         return clinicList
     }
 
-    override fun getAllAppointmentsForDoctorAtDate(appointmentsRequest: AppointmentsRequest): List<LocalTime> {
-        val dayOfWeek: DayOfWeek = appointmentsRequest.date.dayOfWeek
-        println(dayOfWeek)
-        val doctorWorkHours = database
+    override fun getAllAppointmentsForDoctorAtDate(availableTimesRequest: AvailableTimesRequest): List<DoctorWorkTime> =
+        database
             .from(DoctorWorkTimeEntity)
-            .select(DoctorWorkTimeEntity.time)
+            .select()
             .where {
-                DoctorWorkTimeEntity.doctor_id eq appointmentsRequest.doctorId and
-                        (DoctorWorkTimeEntity.day_of_week eq dayOfWeek.value)
-            }.map {
-                it[DoctorWorkTimeEntity.time]!!.toKotlinLocalTime()
-            }
-        val doctorScheduledAppointments = database
-            .from(AppointmentEntity)
-            .select(AppointmentEntity.time)
-            .where {
-                (AppointmentEntity.doctor_id eq appointmentsRequest.doctorId) and
-                        (AppointmentEntity.date eq appointmentsRequest.date.toJavaLocalDate()) and
-                        (AppointmentEntity.confirmed eq true)
+                DoctorWorkTimeEntity.doctor_id inList availableTimesRequest.doctorIds
             }
             .map {
-                it[AppointmentEntity.time]!!.toKotlinLocalTime()
+                DoctorWorkTime(
+                    doctorId = it[DoctorWorkTimeEntity.doctor_id]!!,
+                    clinicId = it[DoctorWorkTimeEntity.clinic_id]!!,
+                    dayOfWeek = DayOfWeek.of(it[DoctorWorkTimeEntity.day_of_week]!!),
+                    time = it[DoctorWorkTimeEntity.time]!!.toKotlinLocalTime()
+                )
             }
-        return doctorWorkHours.filter { !doctorScheduledAppointments.contains(it) }
-    }
 
 
     override fun getAllServicesForDoctor(doctorId: String): List<Service> =

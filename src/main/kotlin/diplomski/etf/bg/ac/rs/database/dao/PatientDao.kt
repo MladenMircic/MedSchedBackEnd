@@ -1,7 +1,7 @@
 package diplomski.etf.bg.ac.rs.database.dao
 
 import diplomski.etf.bg.ac.rs.models.database_models.*
-import diplomski.etf.bg.ac.rs.models.requests.AppointmentsRequest
+import diplomski.etf.bg.ac.rs.models.requests.AvailableTimesRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForPatientResponse
 import kotlinx.datetime.LocalTime
@@ -16,7 +16,7 @@ interface PatientDao {
     fun insertService(category: Category): Int
     fun getDoctors(doctorName: String, categoryIds: List<Int>): List<DoctorForPatient>
     fun getClinics(categoryId: Int?): List<ClinicForPatient>
-    fun getAllAppointmentsForDoctorAtDate(appointmentsRequest: AppointmentsRequest): List<LocalTime>
+    fun getAllAppointmentsForDoctorAtDate(availableTimesRequest: AvailableTimesRequest): List<DoctorWorkTime>
     fun getAllServicesForDoctor(doctorId: String): List<Service>
     fun scheduleAppointment(appointment: Appointment): Int
     fun cancelAppointment(appointmentId: Int, callerRole: Int): Int
