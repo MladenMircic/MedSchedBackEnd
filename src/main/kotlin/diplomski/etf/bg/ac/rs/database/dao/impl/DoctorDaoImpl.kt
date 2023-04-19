@@ -1,9 +1,13 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
+import diplomski.etf.bg.ac.rs.database.DatabaseConnection
 import diplomski.etf.bg.ac.rs.database.dao.DoctorDao
 import diplomski.etf.bg.ac.rs.database.entities.AppointmentEntity
+import diplomski.etf.bg.ac.rs.database.entities.AppointmentServiceEntity
 import diplomski.etf.bg.ac.rs.database.entities.PatientEntity
+import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
+import diplomski.etf.bg.ac.rs.models.database_models.Service
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForDoctorResponse
 import diplomski.etf.bg.ac.rs.utils.Role
 import kotlinx.datetime.toKotlinLocalDate
@@ -27,15 +31,16 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                 AppointmentEntity.doctor_id eq doctorId and ( AppointmentEntity.cancelled_by neq Role.DOCTOR.ordinal )
             }
             .map {
+                val appointmentId = it[AppointmentEntity.id]!!
                 AppointmentForDoctorResponse(
                     patientName = "${it[PatientEntity.first_name]} ${it[PatientEntity.last_name]}",
                     appointment = Appointment(
-                        id = it[AppointmentEntity.id]!!,
+                        id = appointmentId,
                         date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
-                        examId = it[AppointmentEntity.exam_id]!!,
+                        services = getServicesForAppointment(appointmentId),
                         confirmed = it[AppointmentEntity.confirmed]!!,
                         cancelledBy = it[AppointmentEntity.cancelled_by]!!
                     )
@@ -56,7 +61,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                     time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                     doctorId = it[AppointmentEntity.doctor_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
-                    examId = it[AppointmentEntity.exam_id]!!,
+                    services = getServicesForAppointment(appointmentId),
                     confirmed = it[AppointmentEntity.confirmed]!!,
                     cancelledBy = it[AppointmentEntity.cancelled_by]!!
                 )
@@ -75,4 +80,18 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
             }
         }
     }
+
+    private fun getServicesForAppointment(appointmentId: Int): List<Service> =
+        DatabaseConnection.database
+            .from(AppointmentServiceEntity)
+            .innerJoin(ServiceEntity, on = AppointmentServiceEntity.service_id eq ServiceEntity.id)
+            .select()
+            .where { AppointmentServiceEntity.appointment_id eq appointmentId }
+            .map {row ->
+                Service(
+                    id = row[ServiceEntity.id]!!,
+                    name = row[ServiceEntity.name]!!,
+                    categoryId = row[ServiceEntity.category_id]!!
+                )
+            }
 }

@@ -1,5 +1,6 @@
 package diplomski.etf.bg.ac.rs.database.dao
 
+import diplomski.etf.bg.ac.rs.models.AppointmentInfo
 import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AvailableTimesRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
@@ -18,7 +19,7 @@ interface PatientDao {
     fun getClinics(categoryId: Int?): List<ClinicForPatient>
     fun getAllAppointmentsForDoctorAtDate(availableTimesRequest: AvailableTimesRequest): List<DoctorWorkTime>
     fun getAllServicesForDoctor(doctorId: String): List<Service>
-    fun scheduleAppointment(appointment: Appointment): Int
+    fun scheduleAppointments(appointmentList: List<Appointment>)
     fun cancelAppointment(appointmentId: Int, callerRole: Int): Int
     fun updateEmail(patientId: String, email: String): Int
     fun updatePassword(patientId: String, newPassword: String): Int

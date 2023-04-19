@@ -1,6 +1,7 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
+import diplomski.etf.bg.ac.rs.models.AppointmentInfo
 import diplomski.etf.bg.ac.rs.models.Notification
 import diplomski.etf.bg.ac.rs.models.NotificationMessage
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
@@ -63,27 +64,27 @@ fun Application.patientRouter() {
                     call.respond(patientDao.getAllAppointmentsForDoctorAtDate(availableTimesRequest))
                 }
 
-                post("/scheduleAppointment") {
-                    val appointment = call.receive<Appointment>()
-                    val appointmentId = patientDao.scheduleAppointment(appointment)
+                post("/scheduleAppointments") {
+                    val appointmentList = call.receive<List<Appointment>>()
                     try {
-                        val appointmentWithDoctor = patientDao.getAppointmentWithDoctorById(appointmentId)
-                            ?: throw Exception()
-                        oneSignalService.sendNotification(
-                            Notification(
-                                includeExternalUserIds = listOf(appointmentWithDoctor.appointment.doctorId),
-                                headings = NotificationMessage(
-                                    en = Constants.APPOINTMENT_SCHEDULED_HEADING_EN,
-                                    sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
-                                ),
-                                contents = NotificationMessage(
-                                    en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
-                                    sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
-                                ),
-                                appId = OneSignalService.ONESIGNAL_APP_ID
+                        patientDao.scheduleAppointments(appointmentList)
+                        appointmentList.forEach { appointment ->
+                            oneSignalService.sendNotification(
+                                Notification(
+                                    includeExternalUserIds = listOf(appointment.doctorId),
+                                    headings = NotificationMessage(
+                                        en = Constants.APPOINTMENT_SCHEDULED_HEADING_EN,
+                                        sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
+                                    ),
+                                    contents = NotificationMessage(
+                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
+                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
+                                    ),
+                                    appId = OneSignalService.ONESIGNAL_APP_ID
+                                )
                             )
-                        )
-                        call.respond(appointmentWithDoctor)
+                        }
+                        call.respond(HttpStatusCode.OK)
                     } catch(e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError)
                     }
