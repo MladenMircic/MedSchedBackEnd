@@ -41,7 +41,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select(
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id,
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
@@ -73,7 +73,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select(
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id,
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
@@ -246,7 +246,6 @@ class PatientDaoImpl(private val database: Database): PatientDao {
     override fun scheduleAppointments(appointmentList: List<Appointment>) {
         appointmentList.forEach { appointment ->
             val appointmentId = database.insertAndGenerateKey(AppointmentEntity) {
-                set(it.id, appointment.id)
                 set(it.date, appointment.date.toJavaLocalDate())
                 set(it.time, appointment.time.toJavaLocalTime())
                 set(it.doctor_id, appointment.doctorId)

@@ -24,7 +24,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
             .select(
                 PatientEntity.first_name, PatientEntity.last_name,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.exam_id,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id,
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
