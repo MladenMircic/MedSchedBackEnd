@@ -243,7 +243,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 )
             }
 
-    override fun scheduleAppointments(appointmentList: List<Appointment>) {
+    override fun scheduleAppointments(appointmentList: List<Appointment>): List<Int> {
+        val idList: MutableList<Int> = mutableListOf()
         appointmentList.forEach { appointment ->
             val appointmentId = database.insertAndGenerateKey(AppointmentEntity) {
                 set(it.date, appointment.date.toJavaLocalDate())
@@ -259,7 +260,9 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     set(it.service_id, service.id)
                 }
             }
+            idList.add(appointmentId)
         }
+        return idList
     }
 
     override fun cancelAppointment(appointmentId: Int, callerRole: Int): Int {

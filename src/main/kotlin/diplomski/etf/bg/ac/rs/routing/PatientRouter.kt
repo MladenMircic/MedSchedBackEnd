@@ -67,7 +67,7 @@ fun Application.patientRouter() {
                 post("/scheduleAppointments") {
                     val appointmentList = call.receive<List<Appointment>>()
                     try {
-                        patientDao.scheduleAppointments(appointmentList)
+                        val idList = patientDao.scheduleAppointments(appointmentList)
                         appointmentList.forEach { appointment ->
                             oneSignalService.sendNotification(
                                 Notification(
@@ -84,7 +84,7 @@ fun Application.patientRouter() {
                                 )
                             )
                         }
-                        call.respond(HttpStatusCode.OK)
+                        call.respond(HttpStatusCode.OK, idList)
                     } catch(e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError)
                     }
