@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AvailableTimesRequest(
-    val doctorIds: List<String>
+    val doctorIds: List<String>,
+    val patientId: String
 )

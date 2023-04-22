@@ -1,7 +1,6 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
-import diplomski.etf.bg.ac.rs.models.AppointmentInfo
 import diplomski.etf.bg.ac.rs.models.Notification
 import diplomski.etf.bg.ac.rs.models.NotificationMessage
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
@@ -59,9 +58,9 @@ fun Application.patientRouter() {
                     call.respond(patientDao.getAllServicesForDoctor(call.parameters["doctorId"]!!))
                 }
 
-                post("/scheduledAppointmentsForDoctors") {
+                post("/availableAppointmentTimes") {
                     val availableTimesRequest = call.receive<AvailableTimesRequest>()
-                    call.respond(patientDao.getAllAppointmentsForDoctorAtDate(availableTimesRequest))
+                    call.respond(patientDao.getAvailableTimesForDoctors(availableTimesRequest))
                 }
 
                 post("/scheduleAppointments") {

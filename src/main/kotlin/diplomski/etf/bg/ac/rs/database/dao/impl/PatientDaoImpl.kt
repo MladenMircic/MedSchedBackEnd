@@ -7,6 +7,7 @@ import diplomski.etf.bg.ac.rs.models.database_models.*
 import diplomski.etf.bg.ac.rs.models.requests.AvailableTimesRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForPatientResponse
+import diplomski.etf.bg.ac.rs.models.responses.AvailableTimesResponse
 import diplomski.etf.bg.ac.rs.utils.Role
 import kotlinx.datetime.*
 import org.ktorm.database.Database
@@ -210,21 +211,49 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         return clinicList
     }
 
-    override fun getAllAppointmentsForDoctorAtDate(availableTimesRequest: AvailableTimesRequest): List<DoctorWorkTime> =
-        database
-            .from(DoctorWorkTimeEntity)
-            .select()
-            .where {
-                DoctorWorkTimeEntity.doctor_id inList availableTimesRequest.doctorIds
-            }
-            .map {
-                DoctorWorkTime(
-                    doctorId = it[DoctorWorkTimeEntity.doctor_id]!!,
-                    clinicId = it[DoctorWorkTimeEntity.clinic_id]!!,
-                    dayOfWeek = DayOfWeek.of(it[DoctorWorkTimeEntity.day_of_week]!!),
-                    time = it[DoctorWorkTimeEntity.time]!!.toKotlinLocalTime()
-                )
-            }
+    override fun getAvailableTimesForDoctors(availableTimesRequest: AvailableTimesRequest): AvailableTimesResponse {
+        val doctorWorkTimes: List<DoctorWorkTime> =
+            database
+                .from(DoctorWorkTimeEntity)
+                .select()
+                .where {
+                    DoctorWorkTimeEntity.doctor_id inList availableTimesRequest.doctorIds
+                }
+                .map {
+                    DoctorWorkTime(
+                        doctorId = it[DoctorWorkTimeEntity.doctor_id]!!,
+                        clinicId = it[DoctorWorkTimeEntity.clinic_id]!!,
+                        dayOfWeek = DayOfWeek.of(it[DoctorWorkTimeEntity.day_of_week]!!),
+                        time = it[DoctorWorkTimeEntity.time]!!.toKotlinLocalTime()
+                    )
+                }
+        val scheduledAppointments: List<Appointment> =
+            database
+                .from(AppointmentEntity)
+                .select()
+                .where {
+                    AppointmentEntity.patient_id eq availableTimesRequest.patientId and(
+                            AppointmentEntity.doctor_id inList availableTimesRequest.doctorIds
+                    ) and(AppointmentEntity.confirmed eq true)
+                }
+                .map {
+                    Appointment(
+                        id = it[AppointmentEntity.id]!!,
+                        date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
+                        time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
+                        doctorId = it[AppointmentEntity.doctor_id]!!,
+                        patientId = it[AppointmentEntity.patient_id]!!,
+                        services = listOf(),
+                        confirmed = it[AppointmentEntity.confirmed]!!,
+                        cancelledBy = it[AppointmentEntity.cancelled_by]!!
+                    )
+                }
+        return AvailableTimesResponse(
+            doctorWorkTimes = doctorWorkTimes,
+            scheduledAppointments = scheduledAppointments
+        )
+    }
+
 
 
     override fun getAllServicesForDoctor(doctorId: String): List<Service> =

@@ -16,7 +16,6 @@ class OneSignalServiceImpl(
     @OptIn(InternalAPI::class)
     override suspend fun sendNotification(notification: Notification): Boolean {
         return try {
-            println(apiKey)
             client.post {
                 url(OneSignalService.NOTIFICATIONS)
                 contentType(ContentType.Application.Json)
