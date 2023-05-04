@@ -6,4 +6,5 @@ interface DoctorDao {
 
     fun getAppointmentsForDoctor(doctorId: String): List<AppointmentForDoctorResponse>
     fun cancelAppointment(appointmentId: Int, callerRole: Int): Int
+    fun dismissAppointment(appointmentId: Int): Boolean
 }

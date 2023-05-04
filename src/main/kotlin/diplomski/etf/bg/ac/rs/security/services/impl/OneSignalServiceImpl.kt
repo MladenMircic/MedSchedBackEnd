@@ -5,15 +5,12 @@ import diplomski.etf.bg.ac.rs.security.services.OneSignalService
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.util.*
-import io.ktor.util.reflect.*
 
 class OneSignalServiceImpl(
     private val client: HttpClient,
     private val apiKey: String
 ) : OneSignalService {
 
-    @OptIn(InternalAPI::class)
     override suspend fun sendNotification(notification: Notification): Boolean {
         return try {
             client.post {

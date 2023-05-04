@@ -1,5 +1,6 @@
 package diplomski.etf.bg.ac.rs.models
 
+import diplomski.etf.bg.ac.rs.models.notificaton_data.NotificationData
 import diplomski.etf.bg.ac.rs.utils.Constants
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -17,5 +18,5 @@ data class Notification(
     @SerialName("app_id")
     val appId: String,
     @SerialName("data")
-    val data: NotificationData = NotificationData()
+    val data: NotificationData? = null
 )

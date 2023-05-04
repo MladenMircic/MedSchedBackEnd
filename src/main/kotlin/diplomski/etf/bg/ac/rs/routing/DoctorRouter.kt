@@ -1,6 +1,7 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.DoctorDao
+import diplomski.etf.bg.ac.rs.security.services.OneSignalService
 import diplomski.etf.bg.ac.rs.utils.Constants
 import diplomski.etf.bg.ac.rs.utils.Role
 import io.ktor.http.*
@@ -14,6 +15,7 @@ import org.koin.ktor.ext.inject
 fun Application.doctorRouter() {
 
     val doctorDao: DoctorDao by inject()
+    val oneSignalService: OneSignalService by inject()
 
     routing {
         route("/${Constants.DOCTOR_ENDPOINTS}") {
@@ -30,7 +32,16 @@ fun Application.doctorRouter() {
                     val callerRole = call.principal<JWTPrincipal>()!!.payload.getClaim("role").asString().toInt()
                     call.respond(
                         if (doctorDao.cancelAppointment(appointmentId, callerRole) == 0)
-                            HttpStatusCode.InternalServerError
+                            HttpStatusCode.NotFound
+                        else HttpStatusCode.OK
+                    )
+                }
+
+                delete("/dismissAppointment/{appointmentId}") {
+                    val appointmentId = call.parameters["appointmentId"]?.toInt()!!
+                    call.respond(
+                        if (!doctorDao.dismissAppointment(appointmentId))
+                            HttpStatusCode.NotFound
                         else HttpStatusCode.OK
                     )
                 }

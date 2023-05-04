@@ -81,6 +81,10 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
         }
     }
 
+    override fun dismissAppointment(appointmentId: Int): Boolean =
+        database.delete(AppointmentServiceEntity) { AppointmentServiceEntity.appointment_id eq appointmentId } > 0 &&
+        database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId } > 0
+
     private fun getServicesForAppointment(appointmentId: Int): List<Service> =
         DatabaseConnection.database
             .from(AppointmentServiceEntity)

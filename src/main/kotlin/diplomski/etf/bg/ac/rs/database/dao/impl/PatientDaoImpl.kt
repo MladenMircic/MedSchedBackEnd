@@ -275,6 +275,28 @@ class PatientDaoImpl(private val database: Database): PatientDao {
     override fun scheduleAppointments(appointmentList: List<Appointment>): List<Int> {
         val idList: MutableList<Int> = mutableListOf()
         appointmentList.forEach { appointment ->
+            var existingAppointmentId: Int? = null
+            var isConfirmed: Boolean? = null
+            database.from(AppointmentEntity)
+                .select(AppointmentEntity.id, AppointmentEntity.confirmed)
+                .where {
+                    AppointmentEntity.date eq appointment.date.toJavaLocalDate() and(
+                            AppointmentEntity.time eq appointment.time.toJavaLocalTime()
+                    ) and(AppointmentEntity.patient_id eq appointment.patientId) and(
+                            AppointmentEntity.doctor_id eq appointment.doctorId
+                    )
+                }
+                .map {
+                    existingAppointmentId = it[AppointmentEntity.id]!!
+                    isConfirmed = it[AppointmentEntity.confirmed]!!
+                }
+                .firstOrNull()
+            if (isConfirmed == false) {
+                database.delete(AppointmentServiceEntity) {
+                    AppointmentServiceEntity.appointment_id eq existingAppointmentId!!
+                }
+                database.delete(AppointmentEntity) { AppointmentEntity.id eq existingAppointmentId!! }
+            }
             val appointmentId = database.insertAndGenerateKey(AppointmentEntity) {
                 set(it.date, appointment.date.toJavaLocalDate())
                 set(it.time, appointment.time.toJavaLocalTime())
@@ -294,12 +316,12 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         return idList
     }
 
-    override fun cancelAppointment(appointmentId: Int, callerRole: Int): Int {
+    override fun cancelAppointment(appointmentId: Int, callerRole: Int): Appointment? {
         val appointment = database
             .from(AppointmentEntity)
             .select()
             .where {
-                AppointmentEntity.id eq appointmentId
+                AppointmentEntity.id eq appointmentId and(AppointmentEntity.confirmed eq true)
             }
             .map {
                 Appointment(
@@ -313,19 +335,14 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     cancelledBy = it[AppointmentEntity.cancelled_by]!!
                 )
             }.firstOrNull()
-        return if (appointment == null || !appointment.confirmed && appointment.cancelledBy == callerRole) {
-            0
-        } else {
-            if (appointment.confirmed) {
-                database.update(AppointmentEntity) {
-                    set(it.confirmed, false)
-                    set(it.cancelled_by, callerRole)
-                    where { it.id eq appointmentId }
-                }
-            } else {
-                database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }
+        if (appointment != null) {
+            database.update(AppointmentEntity) {
+                set(it.confirmed, false)
+                set(it.cancelled_by, callerRole)
+                where { it.id eq appointmentId }
             }
         }
+        return appointment
     }
 
     override fun updateEmail(patientId: String, email: String): Int =

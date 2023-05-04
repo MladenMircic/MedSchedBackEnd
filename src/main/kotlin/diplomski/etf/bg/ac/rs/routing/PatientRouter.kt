@@ -2,8 +2,10 @@ package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.PatientDao
 import diplomski.etf.bg.ac.rs.models.Notification
+import diplomski.etf.bg.ac.rs.models.notificaton_data.NotificationData
 import diplomski.etf.bg.ac.rs.models.NotificationMessage
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
+import diplomski.etf.bg.ac.rs.models.database_models.Patient
 import diplomski.etf.bg.ac.rs.models.requests.AvailableTimesRequest
 import diplomski.etf.bg.ac.rs.models.requests.EmailChangeRequest
 import diplomski.etf.bg.ac.rs.models.requests.InfoChangeRequest
@@ -21,6 +23,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Application.patientRouter() {
 
@@ -44,9 +47,14 @@ fun Application.patientRouter() {
 
                 get("/getDoctors") {
                     val doctorName = call.request.queryParameters["doctor_name"]!!
-                    val categoryIds: List<Int> = call.request.queryParameters["categories"]!!
-                        .split(",")
-                        .map { it.toInt() }
+                    var categoryIds: List<Int> = listOf()
+                    categoryIds = if (call.request.queryParameters["categories"]!! != "") {
+                        call.request.queryParameters["categories"]!!
+                            .split(",")
+                            .map { it.toInt() }
+                    } else {
+                        categoryIds.toMutableList().also { it.add(0) }
+                    }
                     call.respond(patientDao.getDoctors(doctorName, categoryIds))
                 }
 
@@ -67,22 +75,20 @@ fun Application.patientRouter() {
                     val appointmentList = call.receive<List<Appointment>>()
                     try {
                         val idList = patientDao.scheduleAppointments(appointmentList)
-                        appointmentList.forEach { appointment ->
-                            oneSignalService.sendNotification(
-                                Notification(
-                                    includeExternalUserIds = listOf(appointment.doctorId),
-                                    headings = NotificationMessage(
-                                        en = Constants.APPOINTMENT_SCHEDULED_HEADING_EN,
-                                        sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
-                                    ),
-                                    contents = NotificationMessage(
-                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
-                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
-                                    ),
-                                    appId = OneSignalService.ONESIGNAL_APP_ID
-                                )
+                        oneSignalService.sendNotification(
+                            Notification(
+                                includeExternalUserIds = appointmentList.map { it.doctorId },
+                                headings = NotificationMessage(
+                                    en = Constants.APPOINTMENT_SCHEDULED_HEADING_EN,
+                                    sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
+                                ),
+                                contents = NotificationMessage(
+                                    en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
+                                    sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
+                                ),
+                                appId = OneSignalService.ONESIGNAL_APP_ID
                             )
-                        }
+                        )
                         call.respond(HttpStatusCode.OK, idList)
                     } catch(e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError)
@@ -92,9 +98,61 @@ fun Application.patientRouter() {
                 delete("/cancelAppointment/{appointmentId}") {
                     val appointmentId = call.parameters["appointmentId"]?.toInt()!!
                     val callerRole = call.principal<JWTPrincipal>()!!.payload.getClaim("role").asString().toInt()
+                    val cancelledAppointment = patientDao.cancelAppointment(appointmentId, callerRole)
+                    cancelledAppointment?.let {
+                        val patient: Patient = patientDao.getPatientById(cancelledAppointment.patientId)!!
+                        oneSignalService.sendNotification(
+                            Notification(
+                                includeExternalUserIds = listOf(it.doctorId),
+                                headings = NotificationMessage(
+                                    en = Constants.APPOINTMENT_CANCELLED_HEADING_EN,
+                                    sr = Constants.APPOINTMENT_CANCELLED_HEADING_SR
+                                ),
+                                contents = NotificationMessage(
+                                    en = Constants.APPOINTMENT_CANCELLED_CONTENT_EN.format(
+                                        String.format(
+                                            "%s %d, %d",
+                                            it.date.month.name.lowercase()
+                                                .replaceFirstChar { char ->
+                                                    if (char.isLowerCase())
+                                                        char.titlecase(Locale.getDefault())
+                                                    else
+                                                        char.toString()
+                                                }
+                                                .substring(0, 3),
+                                            it.date.dayOfMonth,
+                                            it.date.year
+                                        ),
+                                        it.time),
+                                    sr = Constants.APPOINTMENT_CANCELLED_CONTENT_SR.format(
+                                        String.format(
+                                            "%s %d, %d",
+                                            it.date.month.name.lowercase()
+                                                .replaceFirstChar { char ->
+                                                    if (char.isLowerCase())
+                                                        char.titlecase(Locale.getDefault())
+                                                    else
+                                                        char.toString()
+                                                }
+                                                .substring(0, 3),
+                                            it.date.dayOfMonth,
+                                            it.date.year
+                                        ),
+                                        it.time
+                                    )
+                                ),
+                                data = NotificationData.AppointmentCancelData(
+                                    patientName = "${patient.firstName} ${patient.lastName}",
+                                    dateOfAction = it.date,
+                                    timeOfAction = it.time
+                                ),
+                                appId = OneSignalService.ONESIGNAL_APP_ID
+                            )
+                        )
+                    }
                     call.respond(
-                        if (patientDao.cancelAppointment(appointmentId, callerRole) == 0)
-                            HttpStatusCode.InternalServerError
+                        if (cancelledAppointment == null)
+                            HttpStatusCode.NotFound
                         else HttpStatusCode.OK
                     )
                 }

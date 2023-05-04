@@ -12,6 +12,12 @@ object Constants {
     const val APPOINTMENT_SCHEDULED_HEADING_EN = "Appointment scheduled"
     const val APPOINTMENT_SCHEDULED_HEADING_SR = "Pregled zakazan"
 
-    const val APPOINTMENT_SCHEDULED_CONTENT_EN = "You have a new appointment"
-    const val APPOINTMENT_SCHEDULED_CONTENT_SR = "Imate novi pregled"
+    const val APPOINTMENT_SCHEDULED_CONTENT_EN = "You have a new appointment scheduled on %s at %s"
+    const val APPOINTMENT_SCHEDULED_CONTENT_SR = "Imate novi pregled zakazan za %s u %s"
+
+    const val APPOINTMENT_CANCELLED_HEADING_EN = "Appointment cancelled"
+    const val APPOINTMENT_CANCELLED_HEADING_SR = "Pregled otkazan"
+
+    const val APPOINTMENT_CANCELLED_CONTENT_EN = "Appointment scheduled on %s at %s has been cancelled"
+    const val APPOINTMENT_CANCELLED_CONTENT_SR = "Pregled zakazan za %s u %s je otkazan"
 }
