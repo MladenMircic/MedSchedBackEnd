@@ -77,6 +77,32 @@ fun Application.patientRouter() {
                         val idList = patientDao.scheduleAppointments(appointmentList)
                         val patient: Patient = patientDao.getPatientById(appointmentList[0].patientId)!!
                         appointmentList.forEach {
+                            val currentDate = String.format(
+                                "%s %d, %d",
+                                it.date.month.name.lowercase()
+                                    .replaceFirstChar { char ->
+                                        if (char.isLowerCase())
+                                            char.titlecase(Locale.getDefault())
+                                        else
+                                            char.toString()
+                                    }
+                                    .substring(0, 3),
+                                it.date.dayOfMonth,
+                                it.date.year
+                            )
+                            val currentTime = String.format(
+                                "%s %d, %d",
+                                it.date.month.name.lowercase()
+                                    .replaceFirstChar { char ->
+                                        if (char.isLowerCase())
+                                            char.titlecase(Locale.getDefault())
+                                        else
+                                            char.toString()
+                                    }
+                                    .substring(0, 3),
+                                it.date.dayOfMonth,
+                                it.date.year
+                            )
                             oneSignalService.sendNotification(
                                 Notification(
                                     includeExternalUserIds =  listOf(it.doctorId),
@@ -85,8 +111,8 @@ fun Application.patientRouter() {
                                         sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
                                     ),
                                     contents = NotificationMessage(
-                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
-                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
+                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN.format(currentDate, currentTime),
+                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR.format(currentDate, currentTime)
                                     ),
                                     data = NotificationData.PatientAppointmentScheduleData(
                                         "${patient.firstName} ${patient.lastName}",
