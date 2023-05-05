@@ -111,8 +111,8 @@ fun Application.patientRouter() {
                                         sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
                                     ),
                                     contents = NotificationMessage(
-                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN.format(currentDate, currentTime),
-                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR.format(currentDate, currentTime)
+                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN.format(currentDate, it.time),
+                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR.format(currentDate, it.time)
                                     ),
                                     data = NotificationData.PatientAppointmentScheduleData(
                                         "${patient.firstName} ${patient.lastName}",
