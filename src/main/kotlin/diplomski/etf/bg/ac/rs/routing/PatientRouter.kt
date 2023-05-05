@@ -14,6 +14,7 @@ import diplomski.etf.bg.ac.rs.models.responses.PasswordChangeResponse
 import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.security.services.OneSignalService
 import diplomski.etf.bg.ac.rs.utils.Constants
+import diplomski.etf.bg.ac.rs.utils.DateFormatter
 import diplomski.etf.bg.ac.rs.utils.Role
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -77,32 +78,6 @@ fun Application.patientRouter() {
                         val idList = patientDao.scheduleAppointments(appointmentList)
                         val patient: Patient = patientDao.getPatientById(appointmentList[0].patientId)!!
                         appointmentList.forEach {
-                            val currentDate = String.format(
-                                "%s %d, %d",
-                                it.date.month.name.lowercase()
-                                    .replaceFirstChar { char ->
-                                        if (char.isLowerCase())
-                                            char.titlecase(Locale.getDefault())
-                                        else
-                                            char.toString()
-                                    }
-                                    .substring(0, 3),
-                                it.date.dayOfMonth,
-                                it.date.year
-                            )
-                            val currentTime = String.format(
-                                "%s %d, %d",
-                                it.date.month.name.lowercase()
-                                    .replaceFirstChar { char ->
-                                        if (char.isLowerCase())
-                                            char.titlecase(Locale.getDefault())
-                                        else
-                                            char.toString()
-                                    }
-                                    .substring(0, 3),
-                                it.date.dayOfMonth,
-                                it.date.year
-                            )
                             oneSignalService.sendNotification(
                                 Notification(
                                     includeExternalUserIds =  listOf(it.doctorId),
@@ -111,8 +86,14 @@ fun Application.patientRouter() {
                                         sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
                                     ),
                                     contents = NotificationMessage(
-                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN.format(currentDate, it.time),
-                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR.format(currentDate, it.time)
+                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN.format(
+                                            DateFormatter.dateAsString(it.date),
+                                            it.time
+                                        ),
+                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR.format(
+                                            DateFormatter.dateAsString(it.date),
+                                            it.time
+                                        )
                                     ),
                                     data = NotificationData.PatientAppointmentScheduleData(
                                         "${patient.firstName} ${patient.lastName}",
@@ -144,34 +125,11 @@ fun Application.patientRouter() {
                                 ),
                                 contents = NotificationMessage(
                                     en = Constants.APPOINTMENT_CANCELLED_CONTENT_EN.format(
-                                        String.format(
-                                            "%s %d, %d",
-                                            it.date.month.name.lowercase()
-                                                .replaceFirstChar { char ->
-                                                    if (char.isLowerCase())
-                                                        char.titlecase(Locale.getDefault())
-                                                    else
-                                                        char.toString()
-                                                }
-                                                .substring(0, 3),
-                                            it.date.dayOfMonth,
-                                            it.date.year
-                                        ),
-                                        it.time),
+                                        DateFormatter.dateAsString(it.date),
+                                        it.time
+                                    ),
                                     sr = Constants.APPOINTMENT_CANCELLED_CONTENT_SR.format(
-                                        String.format(
-                                            "%s %d, %d",
-                                            it.date.month.name.lowercase()
-                                                .replaceFirstChar { char ->
-                                                    if (char.isLowerCase())
-                                                        char.titlecase(Locale.getDefault())
-                                                    else
-                                                        char.toString()
-                                                }
-                                                .substring(0, 3),
-                                            it.date.dayOfMonth,
-                                            it.date.year
-                                        ),
+                                        DateFormatter.dateAsString(it.date),
                                         it.time
                                     )
                                 ),

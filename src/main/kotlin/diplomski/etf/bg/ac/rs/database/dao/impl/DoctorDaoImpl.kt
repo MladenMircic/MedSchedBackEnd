@@ -2,11 +2,9 @@ package diplomski.etf.bg.ac.rs.database.dao.impl
 
 import diplomski.etf.bg.ac.rs.database.DatabaseConnection
 import diplomski.etf.bg.ac.rs.database.dao.DoctorDao
-import diplomski.etf.bg.ac.rs.database.entities.AppointmentEntity
-import diplomski.etf.bg.ac.rs.database.entities.AppointmentServiceEntity
-import diplomski.etf.bg.ac.rs.database.entities.PatientEntity
-import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
+import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.database_models.Appointment
+import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.database_models.Service
 import diplomski.etf.bg.ac.rs.models.responses.AppointmentForDoctorResponse
 import diplomski.etf.bg.ac.rs.utils.Role
@@ -16,6 +14,16 @@ import org.ktorm.database.Database
 import org.ktorm.dsl.*
 
 class DoctorDaoImpl(private val database: Database): DoctorDao {
+    override fun getDoctorNameById(doctorId: String): String? =
+        database
+            .from(DoctorEntity)
+            .select(DoctorEntity.first_name, DoctorEntity.last_name)
+            .where {
+                DoctorEntity.id eq doctorId
+            }
+            .map {
+                "${it[DoctorEntity.first_name]!!} ${it[DoctorEntity.last_name]!!}"
+            }.firstOrNull()
 
     override fun getAppointmentsForDoctor(doctorId: String): List<AppointmentForDoctorResponse> =
         database
@@ -47,7 +55,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                 )
             }
 
-    override fun cancelAppointment(appointmentId: Int, callerRole: Int): Int {
+    override fun cancelAppointment(appointmentId: Int, callerRole: Int): Appointment? {
         val appointment = database
             .from(AppointmentEntity)
             .select()
@@ -66,19 +74,14 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                     cancelledBy = it[AppointmentEntity.cancelled_by]!!
                 )
             }.firstOrNull()
-        return if (appointment == null || !appointment.confirmed && appointment.cancelledBy == callerRole) {
-            0
-        } else {
-            if (appointment.confirmed) {
-                database.update(AppointmentEntity) {
-                    set(it.confirmed, false)
-                    set(it.cancelled_by, callerRole)
-                    where { it.id eq appointmentId }
-                }
-            } else {
-                database.delete(AppointmentEntity) { AppointmentEntity.id eq appointmentId }
+        if (appointment != null) {
+            database.update(AppointmentEntity) {
+                set(it.confirmed, false)
+                set(it.cancelled_by, callerRole)
+                where { it.id eq appointmentId }
             }
         }
+        return appointment
     }
 
     override fun dismissAppointment(appointmentId: Int): Boolean =

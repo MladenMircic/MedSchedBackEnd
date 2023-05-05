@@ -8,6 +8,20 @@ import kotlinx.serialization.Serializable
 sealed class NotificationData {
 
     abstract val type: NotificationType
+
+    @Serializable
+    data class PatientAppointmentScheduleData(
+        @SerialName("patient_name")
+        val patientName: String,
+        @SerialName("date_of_action")
+        val dateOfAction: LocalDate,
+        @SerialName("time_of_action")
+        val timeOfAction: LocalTime
+    ) : NotificationData() {
+        @SerialName("notification_type")
+        override val type: NotificationType = NotificationType.SCHEDULED
+    }
+
     @Serializable
     data class PatientAppointmentCancelData(
         @SerialName("patient_name")
@@ -22,16 +36,16 @@ sealed class NotificationData {
     }
 
     @Serializable
-    data class PatientAppointmentScheduleData(
-        @SerialName("patient_name")
-        val patientName: String,
+    data class DoctorAppointmentCancelData(
+        @SerialName("doctor_name")
+        val doctorName: String,
         @SerialName("date_of_action")
         val dateOfAction: LocalDate,
         @SerialName("time_of_action")
         val timeOfAction: LocalTime
     ) : NotificationData() {
         @SerialName("notification_type")
-        override val type: NotificationType = NotificationType.SCHEDULED
+        override val type: NotificationType = NotificationType.CANCELLED
     }
 
     enum class NotificationType {
