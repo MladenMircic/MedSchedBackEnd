@@ -75,20 +75,28 @@ fun Application.patientRouter() {
                     val appointmentList = call.receive<List<Appointment>>()
                     try {
                         val idList = patientDao.scheduleAppointments(appointmentList)
-                        oneSignalService.sendNotification(
-                            Notification(
-                                includeExternalUserIds = appointmentList.map { it.doctorId },
-                                headings = NotificationMessage(
-                                    en = Constants.APPOINTMENT_SCHEDULED_HEADING_EN,
-                                    sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
-                                ),
-                                contents = NotificationMessage(
-                                    en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
-                                    sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
-                                ),
-                                appId = OneSignalService.ONESIGNAL_APP_ID
+                        val patient: Patient = patientDao.getPatientById(appointmentList[0].patientId)!!
+                        appointmentList.forEach {
+                            oneSignalService.sendNotification(
+                                Notification(
+                                    includeExternalUserIds =  listOf(it.doctorId),
+                                    headings = NotificationMessage(
+                                        en = Constants.APPOINTMENT_SCHEDULED_HEADING_EN,
+                                        sr = Constants.APPOINTMENT_SCHEDULED_HEADING_SR
+                                    ),
+                                    contents = NotificationMessage(
+                                        en = Constants.APPOINTMENT_SCHEDULED_CONTENT_EN,
+                                        sr = Constants.APPOINTMENT_SCHEDULED_CONTENT_SR
+                                    ),
+                                    data = NotificationData.PatientAppointmentScheduleData(
+                                        "${patient.firstName} ${patient.lastName}",
+                                        dateOfAction = it.date,
+                                        timeOfAction = it.time
+                                    ),
+                                    appId = OneSignalService.ONESIGNAL_APP_ID
+                                )
                             )
-                        )
+                        }
                         call.respond(HttpStatusCode.OK, idList)
                     } catch(e: Exception) {
                         call.respond(HttpStatusCode.InternalServerError)
@@ -141,7 +149,7 @@ fun Application.patientRouter() {
                                         it.time
                                     )
                                 ),
-                                data = NotificationData.AppointmentCancelData(
+                                data = NotificationData.PatientAppointmentCancelData(
                                     patientName = "${patient.firstName} ${patient.lastName}",
                                     dateOfAction = it.date,
                                     timeOfAction = it.time
