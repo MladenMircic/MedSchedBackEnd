@@ -172,6 +172,24 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         }
     }
 
+    override fun getPopularDoctors(): List<DoctorForPatient> {
+        val doctors = database
+            .from(DoctorEntity)
+            .select()
+            .map {
+                DoctorForPatient(
+                    id = it[DoctorEntity.id]!!,
+                    email = it[DoctorEntity.email]!!,
+                    firstName = it[DoctorEntity.first_name]!!,
+                    lastName = it[DoctorEntity.last_name]!!,
+                    phone = it[DoctorEntity.phone]!!,
+                    serviceId = it[DoctorEntity.category_id]!!,
+                    specializationId = it[DoctorEntity.specialization_id]!!
+                )
+            }
+        return doctors.shuffled().subList(0, if (doctors.size >= 4) 3 else doctors.size)
+    }
+
     override fun getClinics(categoryId: Int?): List<ClinicForPatient> {
         val clinicList = database
             .from(ClinicEntity)
