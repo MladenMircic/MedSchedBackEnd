@@ -42,7 +42,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select(
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.clinic_id,
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
@@ -59,6 +59,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                         date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
+                        clinicId = it[AppointmentEntity.clinic_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
                         services = getServicesForAppointment(appointmentId),
                         confirmed = it[AppointmentEntity.confirmed]!!,
@@ -74,7 +75,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .select(
                 DoctorEntity.first_name, DoctorEntity.last_name, DoctorEntity.specialization_id,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.clinic_id,
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
@@ -90,6 +91,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                         date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
+                        clinicId = it[AppointmentEntity.clinic_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
                         services = getServicesForAppointment(appointmentId),
                         confirmed = it[AppointmentEntity.confirmed]!!,
@@ -260,15 +262,35 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                         date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
+                        clinicId = it[AppointmentEntity.clinic_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
                         services = listOf(),
                         confirmed = it[AppointmentEntity.confirmed]!!,
                         cancelledBy = it[AppointmentEntity.cancelled_by]!!
                     )
                 }
+        val clinics: List<ClinicForPatient> =
+            database
+                .from(DoctorClinicEntity)
+                .innerJoin(ClinicEntity, on = DoctorClinicEntity.clinic_id eq ClinicEntity.id)
+                .select()
+                .where {
+                    DoctorClinicEntity.doctor_id inList availableTimesRequest.doctorIds
+                }
+                .map {
+                    ClinicForPatient(
+                        id = it[ClinicEntity.id]!!,
+                        email = it[ClinicEntity.email]!!,
+                        name = it[ClinicEntity.name]!!,
+                        openingTime = it[ClinicEntity.opening_time]!!.toKotlinLocalTime(),
+                        workHours = it[ClinicEntity.work_hours]!!,
+                        doctors = listOf()
+                    )
+                }
         return AvailableTimesResponse(
             doctorWorkTimes = doctorWorkTimes,
-            scheduledAppointments = scheduledAppointments
+            scheduledAppointments = scheduledAppointments,
+            clinicsList = clinics
         )
     }
 
@@ -319,6 +341,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 set(it.date, appointment.date.toJavaLocalDate())
                 set(it.time, appointment.time.toJavaLocalTime())
                 set(it.doctor_id, appointment.doctorId)
+                set(it.clinic_id, appointment.clinicId)
                 set(it.patient_id, appointment.patientId)
                 set(it.confirmed, appointment.confirmed)
                 set(it.cancelled_by, appointment.cancelledBy)
@@ -347,6 +370,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                     date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                     time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                     doctorId = it[AppointmentEntity.doctor_id]!!,
+                    clinicId = it[AppointmentEntity.clinic_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
                     services = getServicesForAppointment(appointmentId),
                     confirmed = it[AppointmentEntity.confirmed]!!,

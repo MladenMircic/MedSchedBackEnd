@@ -32,7 +32,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
             .select(
                 PatientEntity.first_name, PatientEntity.last_name,
                 AppointmentEntity.id, AppointmentEntity.date, AppointmentEntity.time,
-                AppointmentEntity.doctor_id, AppointmentEntity.patient_id,
+                AppointmentEntity.doctor_id, AppointmentEntity.patient_id, AppointmentEntity.clinic_id,
                 AppointmentEntity.confirmed, AppointmentEntity.cancelled_by
             )
             .where {
@@ -47,6 +47,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                         date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                         time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                         doctorId = it[AppointmentEntity.doctor_id]!!,
+                        clinicId = it[AppointmentEntity.clinic_id]!!,
                         patientId = it[AppointmentEntity.patient_id]!!,
                         services = getServicesForAppointment(appointmentId),
                         confirmed = it[AppointmentEntity.confirmed]!!,
@@ -68,6 +69,7 @@ class DoctorDaoImpl(private val database: Database): DoctorDao {
                     date = it[AppointmentEntity.date]!!.toKotlinLocalDate(),
                     time = it[AppointmentEntity.time]!!.toKotlinLocalTime(),
                     doctorId = it[AppointmentEntity.doctor_id]!!,
+                    clinicId = it[AppointmentEntity.clinic_id]!!,
                     patientId = it[AppointmentEntity.patient_id]!!,
                     services = getServicesForAppointment(appointmentId),
                     confirmed = it[AppointmentEntity.confirmed]!!,

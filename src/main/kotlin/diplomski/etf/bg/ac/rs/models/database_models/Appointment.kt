@@ -10,6 +10,7 @@ data class Appointment(
     val date: LocalDate,
     val time: LocalTime,
     val doctorId: String,
+    val clinicId: String,
     val patientId: String,
     val services: List<Service>,
     val confirmed: Boolean,
