@@ -18,7 +18,7 @@ interface PatientDao {
     fun insertService(category: Category): Int
     fun getDoctors(doctorName: String, categoryIds: List<Int>): List<DoctorForPatient>
     fun getPopularDoctors(): List<DoctorForPatient>
-    fun getClinics(categoryId: Int?): List<ClinicForPatient>
+    fun getClinics(clinicName: String, categoryId: Int?): List<ClinicForPatient>
     fun getAvailableTimesForDoctors(availableTimesRequest: AvailableTimesRequest): AvailableTimesResponse
     fun getAllServicesForDoctor(doctorId: String): List<Service>
     fun scheduleAppointments(appointmentList: List<Appointment>): List<Int>

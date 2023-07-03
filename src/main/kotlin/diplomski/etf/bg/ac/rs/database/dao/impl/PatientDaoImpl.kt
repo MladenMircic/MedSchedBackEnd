@@ -192,10 +192,13 @@ class PatientDaoImpl(private val database: Database): PatientDao {
         return doctors.shuffled().subList(0, if (doctors.size >= 4) 3 else doctors.size)
     }
 
-    override fun getClinics(categoryId: Int?): List<ClinicForPatient> {
+    override fun getClinics(clinicName: String, categoryId: Int?): List<ClinicForPatient> {
         val clinicList = database
             .from(ClinicEntity)
             .select()
+            .where {
+                ClinicEntity.name eq clinicName
+            }
             .map {
                 ClinicForPatient(
                     id = it[ClinicEntity.id]!!,
