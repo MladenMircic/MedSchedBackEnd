@@ -1,10 +1,7 @@
 package diplomski.etf.bg.ac.rs.database.dao.impl
 
 import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
-import diplomski.etf.bg.ac.rs.database.entities.CategoryEntity
-import diplomski.etf.bg.ac.rs.database.entities.DoctorEntity
-import diplomski.etf.bg.ac.rs.database.entities.DoctorWorkTimeEntity
-import diplomski.etf.bg.ac.rs.database.entities.ServiceEntity
+import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.WorkDay
 import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
@@ -19,6 +16,7 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
     override fun getAllDoctors(): List<Doctor> =
         database
             .from(DoctorEntity)
+            .innerJoin(DoctorClinicEntity, on = DoctorEntity.id eq DoctorClinicEntity.doctor_id)
             .select()
             .map {
                 Doctor(
