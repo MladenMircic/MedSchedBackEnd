@@ -197,7 +197,7 @@ class PatientDaoImpl(private val database: Database): PatientDao {
             .from(ClinicEntity)
             .select()
             .where {
-                ClinicEntity.name eq clinicName
+                ClinicEntity.name like "%$clinicName%"
             }
             .map {
                 ClinicForPatient(
