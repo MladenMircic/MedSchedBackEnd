@@ -1,6 +1,7 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
+import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
 import diplomski.etf.bg.ac.rs.security.services.HashingService
 import diplomski.etf.bg.ac.rs.utils.Constants
@@ -24,6 +25,16 @@ fun Application.clinicRouter() {
             authenticate(Role.CLINIC.name) {
                 get("/allDoctors") {
                     call.respond(clinicDao.getAllDoctors())
+                }
+
+                post("/editDoctor") {
+                    val doctorToEdit = call.receive<Doctor>()
+                    call.respond(
+                        if (clinicDao.editDoctor(doctorToEdit) != 0)
+                            HttpStatusCode.OK
+                        else
+                            HttpStatusCode.NotFound
+                    )
                 }
 
                 get("/allCategories") {

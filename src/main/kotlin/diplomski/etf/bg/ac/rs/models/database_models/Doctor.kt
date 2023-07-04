@@ -12,6 +12,6 @@ data class Doctor(
     val lastName: String,
     override var password: String,
     val phone: String,
-    val categoryId: Int,
-    val specializationId: Int
+    val categoryId: Int = 0,
+    val specializationId: Int = 0
 ) : User

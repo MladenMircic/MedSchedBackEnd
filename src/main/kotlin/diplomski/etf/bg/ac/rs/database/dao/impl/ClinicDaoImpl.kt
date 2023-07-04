@@ -25,11 +25,23 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                     firstName = it[DoctorEntity.first_name]!!,
                     lastName = it[DoctorEntity.last_name]!!,
                     password = "",
-                    phone = it[DoctorEntity.last_name]!!,
+                    phone = it[DoctorEntity.phone]!!,
                     categoryId = it[DoctorEntity.category_id]!!,
                     specializationId = it[DoctorEntity.specialization_id]!!
                 )
             }
+
+    override fun editDoctor(doctor: Doctor): Int =
+        database.update(DoctorEntity) {
+            set(it.email, doctor.email)
+            set(it.first_name, doctor.firstName)
+            set(it.last_name, doctor.lastName)
+            set(it.phone, doctor.phone)
+            where {
+                it.id eq doctor.id
+            }
+        }
+
 
     override fun getAllCategories(): List<Category> =
         database

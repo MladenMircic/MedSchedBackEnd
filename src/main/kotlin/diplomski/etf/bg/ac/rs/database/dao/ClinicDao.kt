@@ -7,6 +7,7 @@ import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
 
 interface ClinicDao {
     fun getAllDoctors(): List<Doctor>
+    fun editDoctor(doctor: Doctor): Int
     fun getAllCategories(): List<Category>
     fun getAllServicesForCategory(categoryId: Int): List<Service>
     fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: String): Boolean
