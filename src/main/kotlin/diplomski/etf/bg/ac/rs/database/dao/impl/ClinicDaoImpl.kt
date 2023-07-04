@@ -7,6 +7,7 @@ import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.database_models.Service
 import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
+import diplomski.etf.bg.ac.rs.models.requests.EditDoctorRequest
 import kotlinx.datetime.toJavaLocalTime
 import org.ktorm.database.Database
 import org.ktorm.dsl.*
@@ -31,14 +32,14 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                 )
             }
 
-    override fun editDoctor(doctor: Doctor): Int =
+    override fun editDoctor(editDoctorRequest: EditDoctorRequest): Int =
         database.update(DoctorEntity) {
-            set(it.email, doctor.email)
-            set(it.first_name, doctor.firstName)
-            set(it.last_name, doctor.lastName)
-            set(it.phone, doctor.phone)
+            set(it.email, editDoctorRequest.email)
+            set(it.first_name, editDoctorRequest.firstName)
+            set(it.last_name, editDoctorRequest.lastName)
+            set(it.phone, editDoctorRequest.phone)
             where {
-                it.id eq doctor.id
+                it.id eq editDoctorRequest.id
             }
         }
 

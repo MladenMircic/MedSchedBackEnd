@@ -4,10 +4,11 @@ import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.database_models.Service
 import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
+import diplomski.etf.bg.ac.rs.models.requests.EditDoctorRequest
 
 interface ClinicDao {
     fun getAllDoctors(): List<Doctor>
-    fun editDoctor(doctor: Doctor): Int
+    fun editDoctor(editDoctorRequest: EditDoctorRequest): Int
     fun getAllCategories(): List<Category>
     fun getAllServicesForCategory(categoryId: Int): List<Service>
     fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: String): Boolean
