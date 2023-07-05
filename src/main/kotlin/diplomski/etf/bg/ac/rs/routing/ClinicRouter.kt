@@ -38,6 +38,22 @@ fun Application.clinicRouter() {
                     )
                 }
 
+                delete("/deleteDoctorFromClinic") {
+                    val doctorId = call.request.queryParameters["doctor_id"] ?: ""
+                    val principal = call.principal<JWTPrincipal>()
+                    call.respond(
+                        if (
+                            clinicDao.deleteDoctorFromClinic(
+                                doctorId,
+                                principal!!.payload.getClaim("id").asString()
+                            )
+                        )
+                            HttpStatusCode.OK
+                        else
+                            HttpStatusCode.NotFound
+                    )
+                }
+
                 get("/allCategories") {
                     call.respond(clinicDao.getAllCategories())
                 }
@@ -57,15 +73,6 @@ fun Application.clinicRouter() {
                     )
                     call.respond(
                         if (!operationSuccess)
-                            HttpStatusCode.InternalServerError
-                        else HttpStatusCode.OK
-                    )
-                }
-
-                delete("/deleteDoctor") {
-                    val doctorId = call.request.queryParameters["doctorId"] ?: ""
-                    call.respond(
-                        if (clinicDao.deleteDoctor(doctorId) == 0)
                             HttpStatusCode.InternalServerError
                         else HttpStatusCode.OK
                     )

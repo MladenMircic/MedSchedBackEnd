@@ -43,6 +43,15 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             }
         }
 
+    override fun deleteDoctorFromClinic(doctorId: String, clinicId: String): Boolean =
+        database.delete(DoctorClinicEntity) {
+            val clinicIdEq = it.clinic_id eq clinicId
+            it.doctor_id eq doctorId and clinicIdEq
+        } > 0 && database.delete(DoctorWorkTimeEntity) {
+            val clinicIdEq = it.clinic_id eq clinicId
+            it.doctor_id eq doctorId and clinicIdEq
+        } > 0
+
 
     override fun getAllCategories(): List<Category> =
         database
@@ -83,13 +92,6 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             set(it.specialization_id, doctorRegisterRequest.specializationId)
         }
         return registerDoctorWorkDays(doctorId, clinicId, doctorRegisterRequest.workDays)
-    }
-
-    override fun deleteDoctor(doctorId: String): Int {
-        if (doctorId == "") return 0
-        val doctorDeleteResult = database.delete(DoctorEntity) { it.id eq doctorId }
-        val workTimeDeleteResult = database.delete(DoctorWorkTimeEntity) { it.doctor_id eq doctorId }
-        return doctorDeleteResult + workTimeDeleteResult
     }
 
     private fun registerDoctorWorkDays(doctorId: String, clinicId: String, workDays: List<WorkDay>): Boolean {
