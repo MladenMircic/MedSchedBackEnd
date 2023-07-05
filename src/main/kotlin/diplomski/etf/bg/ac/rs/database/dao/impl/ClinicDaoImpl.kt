@@ -80,16 +80,41 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             }
 
     override fun registerDoctor(doctorRegisterRequest: DoctorRegisterRequest, clinicId: String): Boolean {
-        val doctorId: String = UUID.randomUUID().toString()
-        database.insert(DoctorEntity) {
-            set(it.id, doctorId)
-            set(it.email, doctorRegisterRequest.email)
-            set(it.first_name, doctorRegisterRequest.firstName)
-            set(it.last_name, doctorRegisterRequest.lastName)
-            set(it.password, doctorRegisterRequest.password)
-            set(it.phone, doctorRegisterRequest.phone)
-            set(it.category_id, doctorRegisterRequest.categoryId)
-            set(it.specialization_id, doctorRegisterRequest.specializationId)
+        val doctorId: String
+        val doctor: Doctor? = database.from(DoctorEntity)
+            .select()
+            .where { DoctorEntity.email eq doctorRegisterRequest.email }
+            .map {
+                Doctor(
+                    id = it[DoctorEntity.id]!!,
+                    email = it[DoctorEntity.email]!!,
+                    firstName = it[DoctorEntity.first_name]!!,
+                    lastName = it[DoctorEntity.last_name]!!,
+                    password = "",
+                    phone = it[DoctorEntity.phone]!!,
+                    categoryId = it[DoctorEntity.category_id]!!,
+                    specializationId = it[DoctorEntity.specialization_id]!!
+                )
+            }
+            .firstOrNull()
+        if (doctor == null) {
+            doctorId = UUID.randomUUID().toString()
+            database.insert(DoctorEntity) {
+                set(it.id, doctorId)
+                set(it.email, doctorRegisterRequest.email)
+                set(it.first_name, doctorRegisterRequest.firstName)
+                set(it.last_name, doctorRegisterRequest.lastName)
+                set(it.password, doctorRegisterRequest.password)
+                set(it.phone, doctorRegisterRequest.phone)
+                set(it.category_id, doctorRegisterRequest.categoryId)
+                set(it.specialization_id, doctorRegisterRequest.specializationId)
+            }
+        } else {
+            doctorId = doctor.id
+        }
+        database.insert(DoctorClinicEntity) {
+            set(it.doctor_id, doctorId)
+            set(it.clinic_id, clinicId)
         }
         return registerDoctorWorkDays(doctorId, clinicId, doctorRegisterRequest.workDays)
     }
