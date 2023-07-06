@@ -3,6 +3,7 @@ package diplomski.etf.bg.ac.rs.database.dao.impl
 import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
 import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.WorkDay
+import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.database_models.Service
@@ -43,19 +44,27 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             }
         }
 
-    override fun deleteDoctorFromClinic(doctorId: String, clinicId: String): Boolean {
-        var result = database.delete(DoctorClinicEntity) {
-            val clinicIdEq = it.clinic_id eq clinicId
-            it.doctor_id eq doctorId and clinicIdEq
-        } > 0 && database.delete(DoctorWorkTimeEntity) {
-            val clinicIdEq = it.clinic_id eq clinicId
-            it.doctor_id eq doctorId and clinicIdEq
-        } > 0
-        if (database.from(DoctorClinicEntity).select().map { true }.firstOrNull() == null) {
-            result = result && database.delete(DoctorEntity) { it.id eq doctorId } > 0
+    override fun deleteDoctorFromClinic(doctorId: String, clinicId: String): Boolean =
+        database.useTransaction {
+            var result = database.delete(DoctorClinicEntity) {
+                val clinicIdEq = it.clinic_id eq clinicId
+                it.doctor_id eq doctorId and clinicIdEq
+            } > 0 && database.delete(DoctorWorkTimeEntity) {
+                val clinicIdEq = it.clinic_id eq clinicId
+                it.doctor_id eq doctorId and clinicIdEq
+            } > 0
+            val doctorClinicAppointmentIDs: List<Int> = database
+                .from(AppointmentEntity)
+                .select(AppointmentEntity.id)
+                .where { AppointmentEntity.doctor_id eq doctorId and (AppointmentEntity.clinic_id eq clinicId) }
+                .map { it[AppointmentEntity.id]!! }
+            result = result && database.delete(AppointmentEntity) { it.doctor_id eq doctorId and (it.clinic_id eq clinicId) } > 0
+                    && database.delete(AppointmentServiceEntity) { it.appointment_id inList doctorClinicAppointmentIDs } > 0
+            if (database.from(DoctorClinicEntity).select().map { true }.firstOrNull() == null) {
+                result = result && database.delete(DoctorEntity) { it.id eq doctorId } > 0
+            }
+            return result
         }
-        return result
-    }
 
 
 

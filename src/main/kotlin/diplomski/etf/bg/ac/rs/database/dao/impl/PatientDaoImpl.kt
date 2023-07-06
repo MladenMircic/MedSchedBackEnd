@@ -256,8 +256,8 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 .select()
                 .where {
                     AppointmentEntity.patient_id eq availableTimesRequest.patientId and(
-                            AppointmentEntity.doctor_id inList availableTimesRequest.doctorIds
-                    ) and(AppointmentEntity.confirmed eq true)
+                            AppointmentEntity.confirmed eq true
+                    )
                 }
                 .map {
                     Appointment(
