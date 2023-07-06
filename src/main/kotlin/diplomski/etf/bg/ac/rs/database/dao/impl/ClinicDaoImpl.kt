@@ -60,7 +60,7 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                 .map { it[AppointmentEntity.id]!! }
             result = result && database.delete(AppointmentEntity) { it.doctor_id eq doctorId and (it.clinic_id eq clinicId) } > 0
                     && database.delete(AppointmentServiceEntity) { it.appointment_id inList doctorClinicAppointmentIDs } > 0
-            if (database.from(DoctorClinicEntity).select().map { true }.firstOrNull() == null) {
+            if (database.from(DoctorClinicEntity).select().where { DoctorClinicEntity.doctor_id eq doctorId }.map { true }.firstOrNull() == null) {
                 result = result && database.delete(DoctorEntity) { it.id eq doctorId } > 0
             }
             return result
