@@ -43,14 +43,20 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
             }
         }
 
-    override fun deleteDoctorFromClinic(doctorId: String, clinicId: String): Boolean =
-        database.delete(DoctorClinicEntity) {
+    override fun deleteDoctorFromClinic(doctorId: String, clinicId: String): Boolean {
+        var result = database.delete(DoctorClinicEntity) {
             val clinicIdEq = it.clinic_id eq clinicId
             it.doctor_id eq doctorId and clinicIdEq
         } > 0 && database.delete(DoctorWorkTimeEntity) {
             val clinicIdEq = it.clinic_id eq clinicId
             it.doctor_id eq doctorId and clinicIdEq
         } > 0
+        if (database.from(DoctorClinicEntity).select().map { true }.firstOrNull() == null) {
+            result = result && database.delete(DoctorEntity) { it.id eq doctorId } > 0
+        }
+        return result
+    }
+
 
 
     override fun getAllCategories(): List<Category> =
