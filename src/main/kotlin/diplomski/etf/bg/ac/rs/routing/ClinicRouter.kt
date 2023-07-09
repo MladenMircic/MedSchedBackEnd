@@ -1,7 +1,6 @@
 package diplomski.etf.bg.ac.rs.routing
 
 import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
-import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.requests.DoctorRegisterRequest
 import diplomski.etf.bg.ac.rs.models.requests.EditDoctorRequest
 import diplomski.etf.bg.ac.rs.security.services.HashingService
@@ -25,7 +24,8 @@ fun Application.clinicRouter() {
         route("/${Constants.CLINIC_ENDPOINTS}") {
             authenticate(Role.CLINIC.name) {
                 get("/allDoctors") {
-                    call.respond(clinicDao.getAllDoctors())
+                    val principal = call.principal<JWTPrincipal>()
+                    call.respond(clinicDao.getAllDoctorsForClinic(principal!!.payload.getClaim("id").asString()))
                 }
 
                 post("/editDoctor") {

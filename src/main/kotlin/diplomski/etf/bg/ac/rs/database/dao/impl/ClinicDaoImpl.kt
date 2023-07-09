@@ -3,7 +3,6 @@ package diplomski.etf.bg.ac.rs.database.dao.impl
 import diplomski.etf.bg.ac.rs.database.dao.ClinicDao
 import diplomski.etf.bg.ac.rs.database.entities.*
 import diplomski.etf.bg.ac.rs.models.WorkDay
-import diplomski.etf.bg.ac.rs.models.database_models.Appointment
 import diplomski.etf.bg.ac.rs.models.database_models.Category
 import diplomski.etf.bg.ac.rs.models.database_models.Doctor
 import diplomski.etf.bg.ac.rs.models.database_models.Service
@@ -15,11 +14,14 @@ import org.ktorm.dsl.*
 import java.util.*
 
 class ClinicDaoImpl(private val database: Database): ClinicDao {
-    override fun getAllDoctors(): List<Doctor> =
+    override fun getAllDoctorsForClinic(clinicId: String): List<Doctor> =
         database
             .from(DoctorEntity)
             .innerJoin(DoctorClinicEntity, on = DoctorEntity.id eq DoctorClinicEntity.doctor_id)
             .select()
+            .where {
+                DoctorClinicEntity.clinic_id eq clinicId
+            }
             .map {
                 Doctor(
                     id = it[DoctorEntity.id]!!,
