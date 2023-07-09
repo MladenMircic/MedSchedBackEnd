@@ -8,6 +8,7 @@ import diplomski.etf.bg.ac.rs.models.requests.EditDoctorRequest
 
 interface ClinicDao {
     fun getAllDoctorsForClinic(clinicId: String): List<Doctor>
+    fun getDoctorByEmail(email: String): Doctor?
     fun editDoctor(editDoctorRequest: EditDoctorRequest): Int
     fun deleteDoctorFromClinic(doctorId: String, clinicId: String): Boolean
     fun getAllCategories(): List<Category>

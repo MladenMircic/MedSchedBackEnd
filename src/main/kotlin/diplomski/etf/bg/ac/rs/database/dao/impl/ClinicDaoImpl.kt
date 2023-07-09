@@ -35,6 +35,26 @@ class ClinicDaoImpl(private val database: Database): ClinicDao {
                 )
             }
 
+    override fun getDoctorByEmail(email: String): Doctor? =
+        database
+            .from(DoctorEntity)
+            .select()
+            .where {
+                DoctorEntity.email eq email
+            }
+            .map {
+                Doctor(
+                    id = it[DoctorEntity.id]!!,
+                    email = it[DoctorEntity.email]!!,
+                    firstName = it[DoctorEntity.first_name]!!,
+                    lastName = it[DoctorEntity.last_name]!!,
+                    password = "",
+                    phone = it[DoctorEntity.phone]!!,
+                    categoryId = it[DoctorEntity.category_id]!!,
+                    specializationId = it[DoctorEntity.specialization_id]!!
+                )
+            }.firstOrNull()
+
     override fun editDoctor(editDoctorRequest: EditDoctorRequest): Int =
         database.update(DoctorEntity) {
             set(it.email, editDoctorRequest.email)

@@ -13,6 +13,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.reflect.*
 import org.koin.ktor.ext.inject
 
 fun Application.clinicRouter() {
@@ -26,6 +27,15 @@ fun Application.clinicRouter() {
                 get("/allDoctors") {
                     val principal = call.principal<JWTPrincipal>()
                     call.respond(clinicDao.getAllDoctorsForClinic(principal!!.payload.getClaim("id").asString()))
+                }
+
+                get("/doctor/{email}") {
+                    val doctor = clinicDao.getDoctorByEmail(call.parameters["email"]!!)
+                    if (doctor != null) {
+                        call.respond(HttpStatusCode.OK, doctor)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
                 }
 
                 post("/editDoctor") {
