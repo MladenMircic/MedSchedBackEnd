@@ -216,7 +216,11 @@ class PatientDaoImpl(private val database: Database): PatientDao {
                 .select()
             if (categoryId != null && categoryId != 0) {
                 doctorsQuery = doctorsQuery.where {
-                    DoctorEntity.category_id eq categoryId
+                    clinic.id eq DoctorClinicEntity.clinic_id and (DoctorEntity.category_id eq categoryId)
+                }
+            } else {
+                doctorsQuery = doctorsQuery.where {
+                    clinic.id eq DoctorClinicEntity.clinic_id
                 }
             }
             clinic.doctors = doctorsQuery.map {
